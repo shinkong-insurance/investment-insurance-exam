@@ -36,17 +36,12 @@ Deno.serve(async (req: Request) => {
   }
 
   const name = String(body.name ?? '').trim()
-  const phone = String(body.phone ?? '').trim().replace(/\D/g, '')
-  const examDate = String(body.exam_date ?? '').trim()
-  const referrerName = body.referrer_name ? String(body.referrer_name).trim() : null
-  const referrerPhone = body.referrer_phone ? String(body.referrer_phone).trim() : null
-  const referrerUnit = body.referrer_unit ? String(body.referrer_unit).trim() : null
-  const referrerId = body.referrer_id ? String(body.referrer_id).trim() : null
+  const unitName = String(body.unit_name ?? '').trim()
+  const employeeId = String(body.employee_id ?? '').trim()
 
   if (!name) return jsonResponse({ error: '請填寫姓名' }, 400)
-  if (!phone) return jsonResponse({ error: '請填寫電話' }, 400)
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(examDate)) return jsonResponse({ error: '考試日期格式錯誤' }, 400)
-  if (Number.isNaN(Date.parse(examDate))) return jsonResponse({ error: '考試日期格式錯誤' }, 400)
+  if (!unitName) return jsonResponse({ error: '請填寫單位' }, 400)
+  if (!employeeId) return jsonResponse({ error: '請填寫員編' }, 400)
 
   const sb = createClient(SUPABASE_URL, SERVICE_ROLE_KEY)
 
@@ -57,7 +52,9 @@ Deno.serve(async (req: Request) => {
   const { data: existingRows, error: findErr } = await sb
     .from('students')
     .select('id, key_id, key_code')
-    .eq('phone', phone)
+    .eq('name', name)
+    .eq('unit_name', unitName)
+    .eq('employee_id', employeeId)
     .order('created_at', { ascending: false })
     .limit(1)
 
@@ -118,12 +115,6 @@ Deno.serve(async (req: Request) => {
     const { error: updStudentErr } = await sb
       .from('students')
       .update({
-        name,
-        exam_date: examDate,
-        referrer: referrerName,
-        referrer_phone: referrerPhone,
-        referrer_unit: referrerUnit,
-        referrer_id: referrerId,
         key_id: keyId,
         key_code: keyCode,
         expires_at: expiresAtIso,
@@ -144,12 +135,8 @@ Deno.serve(async (req: Request) => {
 
   const { error: insStudentErr } = await sb.from('students').insert({
     name,
-    phone,
-    exam_date: examDate,
-    referrer: referrerName,
-    referrer_phone: referrerPhone,
-    referrer_unit: referrerUnit,
-    referrer_id: referrerId,
+    unit_name: unitName,
+    employee_id: employeeId,
     key_id: keyId,
     key_code: keyCode,
     expires_at: expiresAtIso,
