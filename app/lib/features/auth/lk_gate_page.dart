@@ -1,12 +1,11 @@
 // lib/features/auth/lk_gate_page.dart
-// #/lk 入口：預設為自動註冊表單，另提供「使用授權碼登入」備用路徑
+// #/lk 入口：預設為自動註冊表單（姓名/單位/員編），另提供「使用授權碼登入」備用路徑
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/services/lk_auth_service.dart';
 import '../../core/services/study_logger.dart';
-import '../../core/utils/exam_date_options.dart';
 
 class LkGatePage extends StatefulWidget {
   const LkGatePage({super.key});
@@ -21,13 +20,8 @@ class _LkGatePageState extends State<LkGatePage> {
 
   // 自動註冊表單
   final _nameCtrl = TextEditingController();
-  final _phoneCtrl = TextEditingController();
-  final _referrerNameCtrl = TextEditingController();
-  final _referrerPhoneCtrl = TextEditingController();
-  final _referrerUnitCtrl = TextEditingController();
-  final _referrerIdCtrl = TextEditingController();
-  late final List<DateTime> _examDateOptions;
-  DateTime? _selectedExamDate;
+  final _unitCtrl = TextEditingController();
+  final _employeeIdCtrl = TextEditingController();
 
   bool _showKeyLogin = false;
   bool _loading = false;
@@ -36,8 +30,6 @@ class _LkGatePageState extends State<LkGatePage> {
   @override
   void initState() {
     super.initState();
-    _examDateOptions = examDateOptions();
-    _selectedExamDate = _examDateOptions.first;
     _checkExistingSession();
   }
 
@@ -45,11 +37,8 @@ class _LkGatePageState extends State<LkGatePage> {
   void dispose() {
     _codeCtrl.dispose();
     _nameCtrl.dispose();
-    _phoneCtrl.dispose();
-    _referrerNameCtrl.dispose();
-    _referrerPhoneCtrl.dispose();
-    _referrerUnitCtrl.dispose();
-    _referrerIdCtrl.dispose();
+    _unitCtrl.dispose();
+    _employeeIdCtrl.dispose();
     super.dispose();
   }
 
@@ -62,18 +51,19 @@ class _LkGatePageState extends State<LkGatePage> {
 
   Future<void> _submitRegister() async {
     final name = _nameCtrl.text.trim();
-    final phone = _phoneCtrl.text.trim();
+    final unitName = _unitCtrl.text.trim();
+    final employeeId = _employeeIdCtrl.text.trim();
 
     if (name.isEmpty) {
       setState(() => _errorMsg = '請填寫姓名');
       return;
     }
-    if (phone.isEmpty) {
-      setState(() => _errorMsg = '請填寫電話');
+    if (unitName.isEmpty) {
+      setState(() => _errorMsg = '請填寫單位');
       return;
     }
-    if (_selectedExamDate == null) {
-      setState(() => _errorMsg = '請選擇考試日期');
+    if (employeeId.isEmpty) {
+      setState(() => _errorMsg = '請填寫員編');
       return;
     }
 
@@ -81,12 +71,8 @@ class _LkGatePageState extends State<LkGatePage> {
 
     final res = await LkAuthService.autoRegister(
       name: name,
-      phone: phone,
-      examDate: _selectedExamDate!,
-      referrerName: _referrerNameCtrl.text.trim().isEmpty ? null : _referrerNameCtrl.text.trim(),
-      referrerPhone: _referrerPhoneCtrl.text.trim().isEmpty ? null : _referrerPhoneCtrl.text.trim(),
-      referrerUnit: _referrerUnitCtrl.text.trim().isEmpty ? null : _referrerUnitCtrl.text.trim(),
-      referrerId: _referrerIdCtrl.text.trim().isEmpty ? null : _referrerIdCtrl.text.trim(),
+      unitName: unitName,
+      employeeId: employeeId,
     );
 
     if (!mounted) return;
@@ -160,8 +146,16 @@ class _LkGatePageState extends State<LkGatePage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        Center(
+          child: Container(
+            width: 88, height: 88,
+            decoration: BoxDecoration(color: Colors.teal.shade700, shape: BoxShape.circle),
+            child: const Icon(Icons.school_rounded, color: Colors.white, size: 44),
+          ),
+        ),
+        const SizedBox(height: 20),
         const Text(
-          '學員報名',
+          '投資型保險資格測驗',
           style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
           textAlign: TextAlign.center,
         ),
@@ -180,54 +174,17 @@ class _LkGatePageState extends State<LkGatePage> {
         ),
         const SizedBox(height: 12),
         TextField(
-          controller: _phoneCtrl,
-          enabled: !_loading,
-          keyboardType: TextInputType.phone,
-          style: const TextStyle(color: Colors.white),
-          decoration: _fieldDecoration('電話', required: true),
-        ),
-        const SizedBox(height: 12),
-        DropdownButtonFormField<DateTime>(
-          initialValue: _selectedExamDate,
-          isExpanded: true,
-          dropdownColor: const Color(0xFF16213E),
-          style: const TextStyle(color: Colors.white),
-          decoration: _fieldDecoration('考試日期', required: true),
-          items: _examDateOptions
-              .map((d) => DropdownMenuItem(value: d, child: Text(formatExamDate(d))))
-              .toList(),
-          onChanged: _loading ? null : (d) => setState(() => _selectedExamDate = d),
-        ),
-        const SizedBox(height: 20),
-        const Text('推薦人資訊（選填）', style: TextStyle(color: Colors.white38, fontSize: 12)),
-        const SizedBox(height: 8),
-        TextField(
-          controller: _referrerNameCtrl,
+          controller: _unitCtrl,
           enabled: !_loading,
           style: const TextStyle(color: Colors.white),
-          decoration: _fieldDecoration('推薦人姓名'),
+          decoration: _fieldDecoration('單位', required: true),
         ),
         const SizedBox(height: 12),
         TextField(
-          controller: _referrerPhoneCtrl,
-          enabled: !_loading,
-          keyboardType: TextInputType.phone,
-          style: const TextStyle(color: Colors.white),
-          decoration: _fieldDecoration('推薦人電話'),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _referrerUnitCtrl,
+          controller: _employeeIdCtrl,
           enabled: !_loading,
           style: const TextStyle(color: Colors.white),
-          decoration: _fieldDecoration('推薦人單位'),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _referrerIdCtrl,
-          enabled: !_loading,
-          style: const TextStyle(color: Colors.white),
-          decoration: _fieldDecoration('推薦人員編'),
+          decoration: _fieldDecoration('員編', required: true),
         ),
         const SizedBox(height: 24),
         SizedBox(
@@ -345,66 +302,48 @@ class _LkGatePageState extends State<LkGatePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF1A1A2E),
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _showKeyLogin ? _buildKeyLoginForm() : _buildRegisterForm(),
-                      if (_errorMsg != null) ...[
-                        const SizedBox(height: 16),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.red.shade900.withValues(alpha: 0.4),
-                            borderRadius: BorderRadius.circular(8),
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 32),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _showKeyLogin ? _buildKeyLoginForm() : _buildRegisterForm(),
+                  if (_errorMsg != null) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade900.withValues(alpha: 0.4),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.error_outline, color: Colors.redAccent, size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(_errorMsg!, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
                           ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(Icons.error_outline, color: Colors.redAccent, size: 18),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(_errorMsg!, style: const TextStyle(color: Colors.redAccent, fontSize: 13)),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ],
               ),
             ),
           ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.topRight,
-              child: Padding(
-                padding: const EdgeInsets.all(4),
-                child: Tooltip(
-                  message: '管理員後台',
-                  child: IconButton(
-                    icon: const Icon(Icons.admin_panel_settings, color: Colors.white12, size: 22),
-                    onPressed: () => context.push('/admin-login'),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
+// ── 自動格式化：SK-XXXX-XXXX-XXXX ────────────
 class _LkFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {

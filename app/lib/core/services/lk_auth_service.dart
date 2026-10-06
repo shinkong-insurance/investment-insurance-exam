@@ -125,27 +125,14 @@ class LkAuthService {
   // ── 自動註冊（免碼登入）────────────────────────
   static Future<LkLoginResponse> autoRegister({
     required String name,
-    required String phone,
-    required DateTime examDate,
-    String? referrerName,
-    String? referrerPhone,
-    String? referrerUnit,
-    String? referrerId,
+    required String unitName,
+    required String employeeId,
   }) async {
     try {
-      final examDateStr =
-          '${examDate.year.toString().padLeft(4, '0')}-'
-          '${examDate.month.toString().padLeft(2, '0')}-'
-          '${examDate.day.toString().padLeft(2, '0')}';
-
       final res = await _sb.functions.invoke('auto-register-student', body: {
         'name': name,
-        'phone': phone,
-        'exam_date': examDateStr,
-        'referrer_name': referrerName,
-        'referrer_phone': referrerPhone,
-        'referrer_unit': referrerUnit,
-        'referrer_id': referrerId,
+        'unit_name': unitName,
+        'employee_id': employeeId,
       });
 
       final data = res.data;
