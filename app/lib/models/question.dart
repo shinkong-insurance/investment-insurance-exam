@@ -36,4 +36,13 @@ class Question {
     'answer': answer,
     'explanation': explanation,
   };
+
+  /// 顯示用章節標籤：模考題（201/202）顯示科目模考，其餘顯示「第 N 章」。
+  String get chapterLabel => chapterLabelFor(chapterId);
+}
+
+String chapterLabelFor(int chapterId) {
+  if (chapterId == 201) return '第一科模考';
+  if (chapterId == 202) return '第二科模考';
+  return '第 ${chapterId % 100} 章';
 }

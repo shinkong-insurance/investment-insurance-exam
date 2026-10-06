@@ -73,7 +73,7 @@ class FavoritePage extends ConsumerWidget {
                           q.question.length > 50 ? '${q.question.substring(0, 50)}...' : q.question,
                           style: const TextStyle(fontSize: 14),
                         ),
-                        subtitle: Text('第 ${q.chapterId % 100} 章 / 第 ${q.questionNo} 題',
+                        subtitle: Text('${q.chapterLabel} / 第 ${q.questionNo} 題',
                             style: const TextStyle(fontSize: 12)),
                         trailing: IconButton(
                           icon: const Icon(Icons.bookmark_remove, size: 20, color: Colors.amber),
