@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/section.dart';
-import '../repositories/question_repository.dart';
 import 'question_provider.dart';
 
 final allSectionsProvider = FutureProvider<List<Section>>((ref) {

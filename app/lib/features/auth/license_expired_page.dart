@@ -3,7 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/services/web_auth_service.dart';
+import '../../core/services/lk_auth_service.dart';
 
 class LicenseExpiredPage extends StatelessWidget {
   final String message;
@@ -48,7 +48,7 @@ class LicenseExpiredPage extends StatelessWidget {
                 const SizedBox(height: 32),
                 OutlinedButton.icon(
                   onPressed: () async {
-                    await WebAuthService.clearSession();
+                    await LkAuthService.logout();
                     if (context.mounted) context.go('/lk');
                   },
                   icon: const Icon(Icons.logout, color: Colors.white54),

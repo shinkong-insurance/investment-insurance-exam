@@ -1,8 +1,8 @@
 // lib/providers/auth_provider.dart
-// 全 APP 共享的授權狀態（基於 web_users + SharedPreferences session）
+// 全 APP 共享的授權狀態（基於 授權碼 LkAuthService session）
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../core/services/web_auth_service.dart';
+import '../core/services/lk_auth_service.dart';
 
 // ──────────────────────────────────────────────
 // 資料模型
@@ -69,15 +69,14 @@ class ExamAuthNotifier extends AsyncNotifier<ExamAuthState> {
   Future<ExamAuthState> build() async => _loadState();
 
   Future<ExamAuthState> _loadState() async {
-    final user = await WebAuthService.getSession();
+    final user = await LkAuthService.getSession();
     if (user == null) {
       return const ExamAuthState(isLoggedIn: false, isLoading: false);
     }
     return ExamAuthState(
       isLoggedIn: true,
       isLoading: false,
-      name: user.name,
-      batchName: user.batchName,
+            batchName: user.batchName,
       expiresAt: user.expiresAt,
       allowedChapters: const [], // 空 = 全部開放
       canMockExam: true,
@@ -93,7 +92,7 @@ class ExamAuthNotifier extends AsyncNotifier<ExamAuthState> {
 
   /// 登出
   Future<void> signOut() async {
-    await WebAuthService.clearSession();
+    await LkAuthService.logout();
     state = const AsyncValue.data(
       ExamAuthState(isLoggedIn: false, isLoading: false),
     );

@@ -5,7 +5,6 @@ import '../../models/chapter.dart';
 import '../../models/question.dart';
 import '../../providers/question_provider.dart';
 import '../../providers/user_data_provider.dart';
-import '../../repositories/user_data_repository.dart';
 
 class QuizPage extends ConsumerStatefulWidget {
   final int chapterId;
