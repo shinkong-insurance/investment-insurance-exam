@@ -29,6 +29,8 @@ gh variable set SUPABASE_URL --body "https://<project>.supabase.co" -R shinkong-
 gh variable set SUPABASE_ANON_KEY --body "<anon key>" -R shinkong-insurance/investment-insurance-exam
 ```
 
+注意：若預設分支啟用 branch protection，會擋下每月的 bot commit，需允許 github-actions[bot] 或排除該規則。
+
 ## 備援
 
 若 keep-alive 失敗（GitHub 會寄信給 repo owner）：檢查上述 variables；Supabase 在暫停前約一週

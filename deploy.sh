@@ -38,6 +38,7 @@ fi
 
 echo "[3/5] 準備 gh-pages worktree"
 cd "$REPO_ROOT"
+git worktree prune
 if [ ! -d "$WORKTREE_DIR" ]; then
   git fetch origin gh-pages 2>/dev/null || true
   if git show-ref --verify --quiet refs/remotes/origin/gh-pages; then
@@ -53,7 +54,7 @@ if [ ! -d "$WORKTREE_DIR" ]; then
     cd "$REPO_ROOT"
   fi
 fi
-if [ "$(git -C "$WORKTREE_DIR" rev-parse --abbrev-ref HEAD)" != "gh-pages" ]; then
+if [ "$(git -C "$WORKTREE_DIR" symbolic-ref --short HEAD 2>/dev/null || true)" != "gh-pages" ]; then
   echo "ERROR: $WORKTREE_DIR 不在 gh-pages 分支，拒絕同步" >&2
   exit 1
 fi
