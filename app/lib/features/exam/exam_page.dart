@@ -11,9 +11,9 @@ import '../../core/services/study_logger.dart';
 class ExamPage extends ConsumerStatefulWidget {
   final int count;
   final int? chapterId;
-  final int? courseId;    // 1=保險實務, 2=保險法規
+  final int? courseId;    // 1=第一科（章節 101-110）, 2=第二科（模考 201/202）
   final bool wrongPriority; // 優先納入錯題本中該科目的題目
-  final String? paperName;  // 卷別名稱（如「保險實務A卷」），顯示於 AppBar 與記錄
+  final String? paperName;  // 卷別名稱（如「第一科模考」），顯示於 AppBar 與記錄
 
   const ExamPage({
     super.key,
@@ -78,8 +78,8 @@ class _ExamPageState extends ConsumerState<ExamPage> {
   }
 
   void _startTimer() {
-    // 50題 = 3600秒(60分鐘)，100題 = 4800秒(80分鐘)
-    _secondsLeft = widget.count <= 50 ? 3600 : 4800;
+    // 每 50 題 60 分鐘 → 每題 72 秒
+    _secondsLeft = widget.count * 72;
     _timer = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) { _timer?.cancel(); return; }
       setState(() => _secondsLeft--);
@@ -197,7 +197,7 @@ class _ExamPageState extends ConsumerState<ExamPage> {
     ref.invalidate(wrongIdsProvider);
 
     final score = (correct / _questions.length * 100).round();
-    final subjectTag = widget.courseId == 1 ? '保險實務 ' : widget.courseId == 2 ? '保險法規 ' : '';
+    final subjectTag = widget.courseId == 1 ? '第一科 ' : widget.courseId == 2 ? '第二科 ' : '';
     final timeStamp = DateTime.now().toString().substring(0, 16);
     final examName = widget.paperName != null
         ? '${widget.paperName} $timeStamp'
@@ -275,7 +275,7 @@ class _ExamPageState extends ConsumerState<ExamPage> {
                   Text(q.question,
                       style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w500, height: 1.6)),
                   const SizedBox(height: 20),
-                  ...List.generate(4, (i) {
+                  ...List.generate(q.options.length, (i) {
                     final opt = i + 1;
                     final isSelected = selected == opt;
                     return GestureDetector(

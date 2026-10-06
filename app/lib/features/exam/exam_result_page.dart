@@ -104,7 +104,7 @@ class ExamResultPage extends StatelessWidget {
                       children: [
                         Text(q.question, style: const TextStyle(height: 1.5)),
                         const SizedBox(height: 8),
-                        ...List.generate(4, (j) {
+                        ...List.generate(q.options.length, (j) {
                           final opt = j + 1;
                           Color? color;
                           if (opt == q.answer) color = Colors.green;

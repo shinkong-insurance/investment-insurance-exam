@@ -51,8 +51,8 @@ class QuestionRepository {
   }
 
   /// 依科目隨機抽題
-  /// courseId 1 = 保險實務 (chapterId 101-107)
-  /// courseId 2 = 保險法規 (chapterId 201-301)
+  /// courseId 1 = 第一科 (chapterId 101-110)
+  /// courseId 2 = 第二科 (chapterId 201/202 模考)
   Future<List<Question>> getRandomQuestionsByCourse(int count, int courseId) async {
     final all = await getAllQuestions();
     final pool = all.where((q) => q.chapterId ~/ 100 == courseId).toList();

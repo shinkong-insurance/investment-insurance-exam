@@ -1,17 +1,8 @@
-# insurance_exam_app
+# 投資型保險資格測驗（新光人壽）
 
-A new Flutter project.
+投資型保險商品業務員資格測驗的線上練習與模擬考網站（Flutter Web）。
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- 本機執行：`flutter run -d chrome`
+- 題庫與章節內容的產生/驗證腳本在 `../scripts`（`validate_questions.py` 等）
+- 管理後台：`web/admin.html`
+- 部署：待定（TBD）

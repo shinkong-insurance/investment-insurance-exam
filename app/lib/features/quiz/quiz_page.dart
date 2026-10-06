@@ -220,7 +220,7 @@ class _QuizPageState extends ConsumerState<QuizPage> {
                           height: 1.6)),
                   const SizedBox(height: 20),
                   // Options
-                  ...List.generate(4, (i) => _OptionTile(
+                  ...List.generate(q.options.length, (i) => _OptionTile(
                     index: i,
                     text: q.options[i],
                     selected: _selectedAnswer == i + 1,
