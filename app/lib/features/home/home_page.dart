@@ -18,8 +18,11 @@ class HomePage extends ConsumerWidget {
     final favIds = ref.watch(favoriteIdsProvider);
     final allQs = ref.watch(allQuestionsProvider);
     final allSecs = ref.watch(allSectionsProvider);
+    final chapterCount = ref
+        .watch(chaptersProvider)
+        .maybeWhen(data: (c) => c.length, orElse: () => 10);
 
-    final totalQ = allQs.maybeWhen(data: (q) => q.length, orElse: () => 942);
+    final totalQ = allQs.maybeWhen(data: (q) => q.length, orElse: () => 1276);
     final totalSecs =
         allSecs.maybeWhen(data: (s) => s.length, orElse: () => 60);
     final wrongCount =
@@ -65,7 +68,7 @@ class HomePage extends ConsumerWidget {
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('13 章 $totalSecs 節教材',
+                            Text('$chapterCount 章 $totalSecs 節教材',
                                 style: const TextStyle(
                                     color: Colors.white70, fontSize: 12)),
                             const SizedBox(height: 2),
@@ -118,7 +121,7 @@ class HomePage extends ConsumerWidget {
                     const SizedBox(width: 8),
                     _StatCard(
                         label: '章節',
-                        value: '13',
+                        value: '$chapterCount',
                         icon: Icons.menu_book,
                         color: Colors.green),
                   ],
@@ -132,84 +135,31 @@ class HomePage extends ConsumerWidget {
                 _FeatureCard(
                   icon: Icons.menu_book,
                   title: '章節閱讀',
-                  subtitle: '13 章 $totalSecs 節系統教材，條理清晰',
+                  subtitle: '$chapterCount 章 $totalSecs 節系統教材，條理清晰',
                   color: const Color(0xFF1565C0),
                   onTap: () => context.push('/chapters'),
                 ),
                 const SizedBox(height: 20),
 
-                // ── 題庫練習 ──────────────────────────────────
-                _SectionHeader(title: '題庫練習', icon: Icons.quiz),
+                // ── 科目模考 ──────────────────────────────────
+                _SectionHeader(
+                    title: '科目模考', icon: Icons.assignment_turned_in),
                 const SizedBox(height: 10),
-
                 _FeatureCard(
                   icon: Icons.timer,
-                  title: '保險實務（50 題）',
-                  subtitle: '保險實務 · 隨機抽題 · 限時 60 分鐘',
+                  title: '第一科模考（95 題）',
+                  subtitle: '官方考古題全數收錄 · 每次隨機出題',
                   color: Colors.orange,
-                  onTap: () => context.push('/exam?count=50&courseId=1'),
+                  onTap: () => context.push(
+                      '/exam?count=95&chapter=201&paper=${Uri.encodeComponent('第一科')}'),
                 ),
                 _FeatureCard(
                   icon: Icons.assignment,
-                  title: '保險法規（100 題）',
-                  subtitle: '保險法規 · 完整全題型 · 限時 80 分鐘',
+                  title: '第二科模考（181 題）',
+                  subtitle: '官方考古題全數收錄 · 每次隨機出題',
                   color: Colors.deepOrange,
-                  onTap: () => context.push('/exam?count=100&courseId=2'),
-                ),
-                const SizedBox(height: 12),
-
-                // ── 練習考卷（線上作答）────────────────────────
-                _SectionHeader(title: '練習考卷', icon: Icons.article_outlined),
-                const SizedBox(height: 10),
-                // 保險實務 A / B / C 卷
-                _FeatureCard(
-                  icon: Icons.timer_outlined,
-                  title: '保險實務 A 卷（50 題）',
-                  subtitle: '保險實務 · 隨機抽題 · 限時 60 分鐘',
-                  color: const Color(0xFF1565C0),
                   onTap: () => context.push(
-                      '/exam?count=50&courseId=1&paper=%E4%BF%9D%E9%9A%AA%E5%AF%A6%E5%8B%99A%E5%8D%B7'),
-                ),
-                _FeatureCard(
-                  icon: Icons.timer_outlined,
-                  title: '保險實務 B 卷（50 題）',
-                  subtitle: '保險實務 · 隨機抽題 · 限時 60 分鐘',
-                  color: const Color(0xFF1565C0),
-                  onTap: () => context.push(
-                      '/exam?count=50&courseId=1&paper=%E4%BF%9D%E9%9A%AA%E5%AF%A6%E5%8B%99B%E5%8D%B7'),
-                ),
-                _FeatureCard(
-                  icon: Icons.timer_outlined,
-                  title: '保險實務 C 卷（50 題）',
-                  subtitle: '保險實務 · 隨機抽題 · 限時 60 分鐘',
-                  color: const Color(0xFF1565C0),
-                  onTap: () => context.push(
-                      '/exam?count=50&courseId=1&paper=%E4%BF%9D%E9%9A%AA%E5%AF%A6%E5%8B%99C%E5%8D%B7'),
-                ),
-                // 保險法規 A / B / C 卷
-                _FeatureCard(
-                  icon: Icons.assignment_outlined,
-                  title: '保險法規 A 卷（100 題）',
-                  subtitle: '保險法規 · 完整全題型 · 限時 80 分鐘',
-                  color: Colors.indigo,
-                  onTap: () => context.push(
-                      '/exam?count=100&courseId=2&paper=%E4%BF%9D%E9%9A%AA%E6%B3%95%E8%A6%8FA%E5%8D%B7'),
-                ),
-                _FeatureCard(
-                  icon: Icons.assignment_outlined,
-                  title: '保險法規 B 卷（100 題）',
-                  subtitle: '保險法規 · 完整全題型 · 限時 80 分鐘',
-                  color: Colors.indigo,
-                  onTap: () => context.push(
-                      '/exam?count=100&courseId=2&paper=%E4%BF%9D%E9%9A%AA%E6%B3%95%E8%A6%8FB%E5%8D%B7'),
-                ),
-                _FeatureCard(
-                  icon: Icons.assignment_outlined,
-                  title: '保險法規 C 卷（100 題）',
-                  subtitle: '保險法規 · 完整全題型 · 限時 80 分鐘',
-                  color: Colors.indigo,
-                  onTap: () => context.push(
-                      '/exam?count=100&courseId=2&paper=%E4%BF%9D%E9%9A%AA%E6%B3%95%E8%A6%8FC%E5%8D%B7'),
+                      '/exam?count=181&chapter=202&paper=${Uri.encodeComponent('第二科')}'),
                 ),
                 const SizedBox(height: 20),
 

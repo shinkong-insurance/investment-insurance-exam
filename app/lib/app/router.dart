@@ -19,7 +19,6 @@ import '../features/exam/exam_result_page.dart';
 import '../features/wrongbook/wrong_book_page.dart';
 import '../features/favorite/favorite_page.dart';
 import '../features/progress/progress_page.dart';
-import '../features/image_review/image_review_page.dart';
 
 // ──────────────────────────────────────────────
 // 授權守衛（支援兩種登入模式）
@@ -112,6 +111,5 @@ final appRouter = GoRouter(
     GoRoute(path: '/wrongbook',    builder: (_, __) => const WrongBookPage()),
     GoRoute(path: '/favorite',     builder: (_, __) => const FavoritePage()),
     GoRoute(path: '/progress',     builder: (_, __) => const ProgressPage()),
-    GoRoute(path: '/image-review', builder: (_, __) => const ImageReviewPage()),
   ],
 );
