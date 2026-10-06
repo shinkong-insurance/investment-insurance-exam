@@ -22,7 +22,7 @@ curl 驗證通過。keep-alive 排程已設好 repo variables 並手動跑過一
   `build_sections_json.py`；講義草稿 `scripts/sections_draft/`）
 - 題目 id = `chapterId*1000 + 題號`（計畫原本的 `*100` 會撞號）；section id = `chapterId*100 + order`
 - Supabase migration `app/supabase/migrations/0001_init_schema.sql`：RLS 比照外幣站現行（0008/0009）
-  ——`students` 只限管理員 `admin@shinkong.edu.tw`（0002 migration 取代 0001 的 admin@skl.com.tw）、`license_keys` 全員可讀/管理員可寫、其他 4 表開放、
+  ——`students` 只限管理員 `admin@shinkong.edu.tw`（`20261006070000_admin_email_shinkong_edu.sql` 取代 0001 的 admin@skl.com.tw；另有遠端建立、已鏡像進 repo 的 `20261006023301_add_keepalive_rpc.sql`）、`license_keys` 全員可讀/管理員可寫、其他 4 表開放、
   `increment_key_used_count` 為 security definer
 
 **下一步**：
