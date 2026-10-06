@@ -54,3 +54,6 @@ UMU_題庫*.xlsx
 __pycache__/
 .pytest_cache/
 /scripts/out/
+
+# deploy.sh gh-pages worktree
+/.gh-pages-worktree/

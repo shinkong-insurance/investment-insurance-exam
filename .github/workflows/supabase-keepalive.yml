@@ -1,0 +1,55 @@
+# Supabase 免費方案專案在約 7 天低活動後會被自動暫停；本站學員 < 10 人/月，
+# 所以每天對資料庫打一次真實查詢（PostgREST）保持活躍。
+# 另外，Public repo 的排程 workflow 在 60 天無 repo 活動後會被 GitHub 自動停用，
+# 因此每月 1 號由 repo-activity job 提交一次時間戳記到 .github/keepalive.txt。
+#
+# 若 ping 失敗：
+#   1. 檢查 repo variables SUPABASE_URL / SUPABASE_ANON_KEY 是否已設定且正確
+#      (gh variable set SUPABASE_URL --body "https://xxx.supabase.co")
+#   2. 到 Supabase dashboard 檢查專案是否已被暫停，若是請按 Restore
+name: supabase-keepalive
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+    - cron: '23 3 1 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    if: github.event_name != 'schedule' || github.event.schedule == '17 3 * * *'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
+    steps:
+      - name: Query license_keys through PostgREST
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "::error::Repository variables SUPABASE_URL and/or SUPABASE_ANON_KEY are not set"
+            exit 1
+          fi
+          curl --fail --silent --show-error --retry 3 --retry-delay 10 --retry-all-errors \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            "${SUPABASE_URL%/}/rest/v1/license_keys?select=id&limit=1"
+          echo
+          echo "Supabase ping OK"
+
+  repo-activity:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '23 3 1 * *'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Commit keep-alive timestamp to default branch
+        run: |
+          date -u +'%Y-%m-%dT%H:%M:%SZ' > .github/keepalive.txt
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/keepalive.txt
+          git commit -m "chore: monthly keep-alive [skip ci]"
+          git push
