@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>後台管理 — 保險考照 APP</title>
+<title>後台管理 — 投資型保險資格測驗</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --bg: #0f1117; --card: #1a1d2e; --card2: #22263a; --border: #2e3250;
-    --text: #e2e8f0; --muted: #7a8098; --primary: #f97316; --primary-h: #ea6408;
+    --text: #e2e8f0; --muted: #7a8098; --primary: #0d9488; --primary-h: #0b7a70;
     --danger: #ef4444; --success: #22c55e; --warn: #f59e0b; --info: #3b82f6;
     --radius: 10px;
   }
@@ -55,11 +55,6 @@
   .badge-red   { background: rgba(239,68,68,.15); color: var(--danger); }
   .badge-warn  { background: rgba(245,158,11,.15); color: var(--warn); }
   .badge-info  { background: rgba(59,130,246,.15); color: var(--info); }
-  /* 考試日期檢核：只提示，不擋學員 */
-  .date-warn { color: var(--warn); font-weight: 600; cursor: help; }
-  .date-bad  { color: var(--danger); font-weight: 600; cursor: help; }
-  .date-past { color: var(--muted); }
-  .date-legend { font-size: 12px; color: var(--muted); margin: 0 0 8px; line-height: 1.7; }
 
   /* ── Forms ── */
   .form-row { margin-bottom: 14px; }
@@ -112,13 +107,13 @@
 <div id="login-screen">
   <div class="login-card">
     <div style="text-align:center;margin-bottom:24px">
-      <div style="width:56px;height:56px;background:var(--primary);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:12px">🛡️</div>
+      <div style="width:56px;height:56px;background:var(--primary);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:12px">📈</div>
       <h1>後台管理系統</h1>
-      <p>保險業務員資格測驗平台</p>
+      <p>投資型保險資格測驗平台</p>
     </div>
     <div class="form-row">
       <label>管理員 Email</label>
-      <input type="email" id="admin-email" value="admin@shinkong.edu.tw" autocomplete="username">
+      <input type="email" id="admin-email" value="admin@skl.com.tw" autocomplete="username">
     </div>
     <div class="form-row">
       <label>密碼</label>
@@ -128,8 +123,8 @@
     <button class="btn btn-primary" style="width:100%;margin-top:12px;justify-content:center;padding:12px" onclick="doLogin()" id="login-btn">登入後台</button>
     <p style="color:var(--muted);font-size:11px;text-align:center;margin-top:16px">
       若尚未設定管理員帳號，請至<br>
-      <a href="https://supabase.com/dashboard/project/pzqeoxqkagcytdcekxgq/auth/users" target="_blank" style="color:var(--primary)">Supabase Dashboard → Authentication → Users</a><br>
-      建立帳號
+      Supabase Dashboard → Authentication → Users<br>
+      建立帳號（此專案為獨立的投資型保險測驗專案，帳號不與其他站台共用）
     </p>
   </div>
 </div>
@@ -137,25 +132,11 @@
 <!-- ══════════════ DASHBOARD ══════════════ -->
 <div id="dashboard">
   <div class="topbar">
-    <h1>🛡️ 後台管理 — 保險考照</h1>
+    <h1>📈 後台管理 — 投資型保險資格測驗</h1>
     <div style="display:flex;gap:8px;align-items:center">
       <span id="admin-label" style="color:var(--muted);font-size:12px"></span>
-      <a href="admin-guide.html" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none">📖 講師手冊</a>
       <button class="btn btn-outline btn-sm" onclick="doLogout()">登出</button>
     </div>
-  </div>
-
-  <!-- ── 手冊快速入口 ── -->
-  <div style="background:linear-gradient(135deg,rgba(249,115,22,.08),rgba(59,130,246,.08));border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-    <span style="color:var(--muted);font-size:12px;display:flex;align-items:center;gap:5px;">
-      📋 <strong style="color:var(--text)">使用手冊</strong>
-    </span>
-    <a href="admin-guide.html" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
-      ⚙️ 後台管理使用手冊
-    </a>
-    <a href="student-guide.html" target="_blank" class="btn btn-outline btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:5px;">
-      📱 考生使用手冊
-    </a>
   </div>
 
   <!-- ── Tabs ── -->
@@ -169,28 +150,40 @@
     <div class="content">
       <div class="stats" id="stats-row">
         <div class="stat-card"><div class="num" id="s-total">—</div><div class="lbl">總學員數</div></div>
-        <div class="stat-card"><div class="num" id="s-today">—</div><div class="lbl">今日新增</div></div>
-        <div class="stat-card"><div class="num" id="s-expiring">—</div><div class="lbl">即將過期（7天內）</div></div>
         <div class="stat-card"><div class="num" id="s-active">—</div><div class="lbl">已分配授權碼</div></div>
+        <div class="stat-card"><div class="num" id="s-expired">—</div><div class="lbl">未分配授權碼</div></div>
+        <div class="stat-card"><div class="num" id="s-logins">—</div><div class="lbl">已寄送郵件</div></div>
+        <div class="stat-card"><div class="num" id="s-today">—</div><div class="lbl">今日新增</div></div>
+        <div class="stat-card"><div class="num" id="s-expiring">—</div><div class="lbl">即將到期（≤7天）</div></div>
       </div>
 
       <div class="panel">
-        <div class="panel-header"><h2>依推薦人／推薦單位統計</h2></div>
+        <div class="panel-header">
+          <h2>依單位分組</h2>
+        </div>
         <div style="overflow-x:auto">
           <table>
-            <thead><tr><th>推薦人</th><th>推薦單位</th><th>學員數</th></tr></thead>
-            <tbody id="referrer-stats-tbody"></tbody>
+            <thead>
+              <tr>
+                <th>單位</th>
+                <th>學員數</th>
+              </tr>
+            </thead>
+            <tbody id="unit-breakdown-tbody"></tbody>
           </table>
         </div>
       </div>
 
       <div class="panel">
-        <div class="panel-header"><h2>依考試日期統計</h2></div>
-        <p class="date-legend" style="padding:10px 16px 0">顏色說明：<span class="date-warn">橘色</span>＝考試日期與報名同一天（可能沒改預設值）或距報名超過 180 天；<span class="date-bad">紅色</span>＝考試日期早於報名日；<span class="date-past">灰色</span>＝已考完。滑鼠移到日期上可看原因。</p>
+        <div class="panel-header">
+          <h2>科目模考統計（依單位）</h2>
+        </div>
         <div style="overflow-x:auto">
-          <table>
-            <thead><tr><th>考試日期</th><th>學員數</th></tr></thead>
-            <tbody id="examdate-stats-tbody"></tbody>
+          <table id="mock-exam-stats-table">
+            <thead>
+              <tr><th>單位</th><th>科目</th><th>作答次數</th><th>平均正確率</th><th>及格率（&ge;60%）</th></tr>
+            </thead>
+            <tbody id="mock-exam-stats-body"></tbody>
           </table>
         </div>
       </div>
@@ -199,7 +192,7 @@
         <div class="panel-header">
           <h2>學員管理 <span style="color:var(--muted);font-size:12px;font-weight:400">（授權碼 + 信箱 對應）</span></h2>
           <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <input class="search-input" id="search-box" placeholder="🔍 搜尋姓名 / 電話 / 推薦人 / 區部 / 單位" oninput="renderTable()">
+            <input class="search-input" id="search-box" placeholder="🔍 搜尋姓名 / 區部 / 單位 / 員編" oninput="renderTable()">
             <button class="btn btn-primary btn-sm" onclick="openAddUserModal()">＋ 新增學員</button>
             <button class="btn btn-outline btn-sm" onclick="loadUsers()">重整</button>
           </div>
@@ -211,13 +204,13 @@
                 <th class="hide-sm">區部</th>
                 <th class="hide-sm">單位</th>
                 <th>姓名</th>
-                <th class="hide-sm">電話</th>
-                <th class="hide-sm">考試日期</th>
-                <th class="hide-sm">推薦人</th>
-                <th class="hide-sm">推薦單位</th>
+                <th class="hide-sm">員編</th>
+                <th class="hide-sm">信箱</th>
+                <th class="hide-sm">梯次</th>
                 <th>授權碼</th>
                 <th class="hide-sm">到期日</th>
                 <th>狀態</th>
+                <th>寄送</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -290,47 +283,23 @@
         <input type="text" id="f-name" placeholder="王小明">
       </div>
       <div>
+        <label>員編</label>
+        <input type="text" id="f-employee-id" placeholder="例：A12345">
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div>
         <label>信箱</label>
         <input type="email" id="f-email" placeholder="example@email.com">
       </div>
-    </div>
-    <div class="form-row">
-      <label>電話</label>
-      <input type="text" id="f-phone" placeholder="09xx-xxxxxx">
-    </div>
-    <div class="form-row-2">
       <div>
         <label>梯次名稱</label>
         <input type="text" id="f-batch-name" placeholder="2026第一梯次">
       </div>
-      <div>
-        <label>授權到期日</label>
-        <input type="date" id="f-expires-at">
-      </div>
-    </div>
-    <div class="form-row-2">
-      <div>
-        <label>考試日期</label>
-        <input type="date" id="f-exam-date">
-      </div>
-      <div>
-        <label>推薦人單位</label>
-        <input type="text" id="f-referrer-unit" placeholder="選填">
-      </div>
-    </div>
-    <div class="form-row-2">
-      <div>
-        <label>推薦人姓名</label>
-        <input type="text" id="f-referrer" placeholder="選填">
-      </div>
-      <div>
-        <label>推薦人電話</label>
-        <input type="text" id="f-referrer-phone" placeholder="選填">
-      </div>
     </div>
     <div class="form-row">
-      <label>推薦人員編</label>
-      <input type="text" id="f-referrer-id" placeholder="選填">
+      <label>授權到期日</label>
+      <input type="date" id="f-expires-at">
     </div>
     <div class="form-row">
       <label>指定授權碼 <span style="color:var(--muted)">(留空則從可用授權碼中自動分配)</span></label>
@@ -446,8 +415,9 @@
 </div>
 
 <script>
-const SUPABASE_URL = 'https://pzqeoxqkagcytdcekxgq.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6cWVveHFrYWdjeXRkY2VreGdxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxNDU5NTEsImV4cCI6MjEwNTcyMTk1MX0.SgcHx8Ar4q6q4gonHKtDFxy1_Im6zXbRCR7a6msF48E';
+// TODO(Task 5): fill in the new Supabase project's URL and anon key (same values as the Flutter app).
+const SUPABASE_URL = 'https://REPLACE-WITH-NEW-PROJECT.supabase.co';
+const SUPABASE_KEY = 'REPLACE_WITH_NEW_ANON_KEY';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let allStudents = [], allUsers = [], allKeys = [];
@@ -479,7 +449,7 @@ function showDashboard(email) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   document.getElementById('admin-label').textContent = email;
-  loadUsers(); loadKeys();
+  loadUsers(); loadKeys(); loadMockExamStats();
 }
 
 // Shared: load available (unassigned) license keys for dropdown
@@ -552,104 +522,128 @@ async function loadUsers() {
     return;
   }
   allStudents = data || [];
-  updateUserStats(); renderTable();
+  updateUserStats(); renderTable(); renderUnitBreakdown();
+  loadMockExamStats();
 }
 
 function updateUserStats() {
   const now = new Date();
-  const todayStr = now.getFullYear() + '-' +
-    String(now.getMonth() + 1).padStart(2, '0') + '-' +
-    String(now.getDate()).padStart(2, '0');
-
-  document.getElementById('s-total').textContent = allStudents.length;
-  document.getElementById('s-today').textContent =
-    allStudents.filter(s => (s.created_at || '').substring(0, 10) === todayStr).length;
+  const todayStr = now.toDateString();
+  document.getElementById('s-total').textContent   = allStudents.length;
+  document.getElementById('s-active').textContent  = allStudents.filter(s => s.key_code).length;
+  document.getElementById('s-expired').textContent = allStudents.filter(s => !s.key_code).length;
+  document.getElementById('s-logins').textContent  = allStudents.filter(s => s.email_sent_at).length;
+  document.getElementById('s-today').textContent   = allStudents.filter(s => s.created_at && new Date(s.created_at).toDateString() === todayStr).length;
   document.getElementById('s-expiring').textContent = allStudents.filter(s => {
-    if (!s.expires_at) return false;
-    const exp = new Date(s.expires_at);
-    const daysLeft = Math.ceil((exp - now) / 86400000);
+    if (!s.is_active || !s.expires_at) return false;
+    const daysLeft = Math.ceil((new Date(s.expires_at) - now) / 86400000);
     return daysLeft >= 0 && daysLeft <= 7;
   }).length;
-  document.getElementById('s-active').textContent = allStudents.filter(s => s.key_code).length;
-
-  renderReferrerStats();
-  renderExamDateStats();
 }
 
-function renderReferrerStats() {
-  const groups = new Map();
+function renderUnitBreakdown() {
+  const counts = {};
   allStudents.forEach(s => {
-    const referrer = s.referrer || '（未填寫）';
-    const unit = s.referrer_unit || '（未填寫）';
-    const key = referrer + ' ' + unit; // null char never appears in real input; safe internal-only key
-    if (!groups.has(key)) groups.set(key, { referrer, unit, count: 0 });
-    groups.get(key).count++;
+    const unit = s.unit_name || '未填寫';
+    counts[unit] = (counts[unit] || 0) + 1;
   });
-
-  const tbody = document.getElementById('referrer-stats-tbody');
-  const entries = [...groups.values()].sort((a, b) => b.count - a.count);
+  const entries = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+  const tbody = document.getElementById('unit-breakdown-tbody');
   if (!entries.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="3">尚無資料</td></tr>';
+    const emptyRow = document.createElement('tr');
+    emptyRow.className = 'empty-row';
+    const emptyCell = document.createElement('td');
+    emptyCell.setAttribute('colspan', '2');
+    emptyCell.textContent = '尚無資料';
+    emptyRow.appendChild(emptyCell);
+    tbody.replaceChildren(emptyRow);
     return;
   }
-  tbody.innerHTML = entries.map(e =>
-    `<tr><td>${esc(e.referrer)}</td><td>${esc(e.unit)}</td><td>${e.count}</td></tr>`
-  ).join('');
-}
-
-// ── 考試日期檢核（台灣時間）：只做顏色提示 ──
-function twDate(iso) {
-  if (!iso) return '';
-  const d = new Date(iso);
-  if (isNaN(d)) return '';
-  return new Date(d.getTime() + 8 * 3600000).toISOString().substring(0, 10);
-}
-function examDateCheck(u) {
-  const ex = (u.exam_date || '').substring(0, 10);
-  if (!ex) return null;
-  const signup = twDate(u.created_at);
-  const today = twDate(new Date().toISOString());
-  if (signup && ex < signup) return { cls: 'date-bad', tip: '考試日期早於報名日（' + signup + '），可能填錯' };
-  if (signup && ex === signup) return { cls: 'date-warn', tip: '考試日期與報名日相同，可能沒改預設值' };
-  if (signup && (new Date(ex) - new Date(signup)) / 86400000 > 180) return { cls: 'date-warn', tip: '考試日期距報名超過 180 天，請確認' };
-  if (ex < today) return { cls: 'date-past', tip: '已考完' };
-  return null;
-}
-
-function renderExamDateStats() {
-  const groups = {}, flagged = {};
-  allStudents.forEach(s => {
-    const key = s.exam_date || '（未填寫）';
-    groups[key] = (groups[key] || 0) + 1;
-    const c = examDateCheck(s);
-    if (c && c.cls !== 'date-past') flagged[key] = (flagged[key] || 0) + 1;
+  const rows = entries.map(([unit, count]) => {
+    const tr = document.createElement('tr');
+    const tdUnit = document.createElement('td');
+    tdUnit.textContent = unit;
+    const tdCount = document.createElement('td');
+    tdCount.textContent = count;
+    tr.append(tdUnit, tdCount);
+    return tr;
   });
-  const today = twDate(new Date().toISOString());
+  tbody.replaceChildren(...rows);
+}
 
-  const tbody = document.getElementById('examdate-stats-tbody');
-  const entries = Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0]));
-  if (!entries.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="2">尚無資料</td></tr>';
+// ══════════════════════════════════════════════
+// Mock exam stats (科目模考統計: study_logs chapter 201 = 第一科, 202 = 第二科)
+// ══════════════════════════════════════════════
+// 及格標準先假設 60%，如實際及格標準不同請調整這個常數
+const MOCK_EXAM_PASS_RATE = 0.6;
+
+async function loadMockExamStats() {
+  const tbody = document.getElementById('mock-exam-stats-body');
+  const { data: logs, error } = await sb
+    .from('study_logs')
+    .select('license_key, chapter_id, questions_total, questions_correct')
+    .eq('event_type', 'exam_session')
+    .in('chapter_id', ['201', '202']);
+  if (error) {
+    console.error(error);
+    const tr = document.createElement('tr'); tr.className = 'empty-row';
+    const td = document.createElement('td'); td.setAttribute('colspan', '5');
+    td.style.color = 'var(--danger)'; td.textContent = '載入失敗：' + error.message;
+    tr.appendChild(td); tbody.replaceChildren(tr);
     return;
   }
-  tbody.innerHTML = entries.map(([date, count]) => {
-    const f = flagged[date] || 0;
-    const past = /^\d{4}-\d{2}-\d{2}/.test(date) && date.substring(0, 10) < today;
-    const dateHtml = past ? `<span class="date-past">${esc(date)}（已考）</span>` : esc(date);
-    const note = f ? ` <span class="date-warn" title="日期可能誤填，請看下方學員列表的橘/紅色日期">（其中 ${f} 筆待確認）</span>` : '';
-    return `<tr><td>${dateHtml}</td><td>${count}${note}</td></tr>`;
-  }).join('');
+
+  // student unit by key_code (students is admin-only via RLS; page is logged in as admin)
+  const { data: students } = await sb.from('students').select('key_code, unit_name');
+  const unitByKeyCode = Object.fromEntries(
+    (students || []).filter(s => s.key_code).map(s => [s.key_code, s.unit_name || '未填寫'])
+  );
+
+  // key: `${unit}__${subject}` -> { unit, subject, count, correctSum, totalSum, passCount }
+  const grouped = {};
+  for (const log of logs || []) {
+    const unit = unitByKeyCode[log.license_key] || '未知';
+    const subject = log.chapter_id === '201' ? '第一科' : '第二科';
+    const key = `${unit}__${subject}`;
+    const g = grouped[key] || { unit, subject, count: 0, correctSum: 0, totalSum: 0, passCount: 0 };
+    const total = log.questions_total || 0;
+    const correct = log.questions_correct || 0;
+    const rate = total > 0 ? correct / total : 0;
+    g.count += 1;
+    g.correctSum += correct;
+    g.totalSum += total;
+    if (rate >= MOCK_EXAM_PASS_RATE) g.passCount += 1;
+    grouped[key] = g;
+  }
+
+  const groups = Object.values(grouped).sort((a, b) =>
+    a.unit.localeCompare(b.unit, 'zh-TW') || a.subject.localeCompare(b.subject, 'zh-TW'));
+  if (!groups.length) {
+    const tr = document.createElement('tr'); tr.className = 'empty-row';
+    const td = document.createElement('td'); td.setAttribute('colspan', '5'); td.textContent = '尚無模考資料';
+    tr.appendChild(td); tbody.replaceChildren(tr);
+    return;
+  }
+  // Built with textContent (no innerHTML): unit names come from student input.
+  const rows = groups.map(g => {
+    const avgRate = g.totalSum > 0 ? (g.correctSum / g.totalSum * 100).toFixed(1) : '0.0';
+    const passRate = g.count > 0 ? (g.passCount / g.count * 100).toFixed(1) : '0.0';
+    const tr = document.createElement('tr');
+    [g.unit, g.subject, String(g.count), avgRate + '%', passRate + '%'].forEach(t => {
+      const td = document.createElement('td'); td.textContent = t; tr.appendChild(td);
+    });
+    return tr;
+  });
+  tbody.replaceChildren(...rows);
 }
 
 function renderTable() {
   const q = document.getElementById('search-box').value.toLowerCase();
   const filtered = allStudents.filter(u =>
     u.name?.toLowerCase().includes(q) ||
-    u.phone?.toLowerCase().includes(q) ||
-    u.referrer?.toLowerCase().includes(q) ||
-    u.referrer_unit?.toLowerCase().includes(q) ||
     u.region?.toLowerCase().includes(q) ||
     u.unit_name?.toLowerCase().includes(q) ||
+    u.employee_id?.toLowerCase().includes(q) ||
     u.email?.toLowerCase().includes(q) ||
     u.batch_name?.toLowerCase().includes(q)
   );
@@ -678,41 +672,44 @@ function renderTable() {
     else if (daysLeft <= 7){ badgeText = '剩 ' + daysLeft + ' 天'; badgeClass = 'badge-warn'; }
     else                   { badgeText = '有效'; badgeClass = 'badge-green'; }
 
+    const sentText = u.email_sent_at
+      ? new Date(u.email_sent_at).toLocaleDateString('zh-TW')
+      : '—';
+
     const tr = document.createElement('tr');
 
+    // 區部
     const tdRegion = document.createElement('td');
     tdRegion.className = 'hide-sm';
     tdRegion.textContent = u.region || '—';
 
+    // 單位
     const tdUnit = document.createElement('td');
     tdUnit.className = 'hide-sm';
     tdUnit.textContent = u.unit_name || '—';
 
+    // 姓名
     const tdName = document.createElement('td');
     const strong = document.createElement('strong');
     strong.textContent = u.name;
     tdName.appendChild(strong);
 
-    const tdPhone = document.createElement('td');
-    tdPhone.className = 'hide-sm';
-    tdPhone.textContent = u.phone || '—';
+    // 員編
+    const tdEmployeeId = document.createElement('td');
+    tdEmployeeId.className = 'hide-sm';
+    tdEmployeeId.textContent = u.employee_id || '—';
 
-    const tdExamDate = document.createElement('td');
-    tdExamDate.className = 'hide-sm';
-    tdExamDate.textContent = u.exam_date || '—';
-    const dc = examDateCheck(u);
-    if (dc) { tdExamDate.classList.add(dc.cls); tdExamDate.title = dc.tip; }
+    // 信箱
+    const tdEmail = document.createElement('td');
+    tdEmail.className = 'hide-sm';
+    tdEmail.textContent = u.email || '—';
 
-    const tdReferrer = document.createElement('td');
-    tdReferrer.className = 'hide-sm';
-    tdReferrer.textContent = u.referrer
-      ? (u.referrer + (u.referrer_id ? '（' + u.referrer_id + '）' : ''))
-      : '—';
+    // 梯次
+    const tdBatch = document.createElement('td');
+    tdBatch.className = 'hide-sm';
+    tdBatch.textContent = u.batch_name || '—';
 
-    const tdReferrerUnit = document.createElement('td');
-    tdReferrerUnit.className = 'hide-sm';
-    tdReferrerUnit.textContent = u.referrer_unit || '—';
-
+    // 授權碼
     const tdKey = document.createElement('td');
     if (u.key_code) {
       const span = document.createElement('span');
@@ -725,16 +722,32 @@ function renderTable() {
       tdKey.textContent = '—';
     }
 
+    // 到期日
     const tdExp = document.createElement('td');
     tdExp.className = 'hide-sm';
     tdExp.textContent = u.expires_at?.substring(0,10) || '—';
 
+    // 狀態 badge
     const tdBadge = document.createElement('td');
     const badge = document.createElement('span');
     badge.className = 'badge ' + badgeClass;
     badge.textContent = badgeText;
     tdBadge.appendChild(badge);
 
+    // 寄送
+    const tdSend = document.createElement('td');
+    if (u.email && u.key_code) {
+      const sendBtn = document.createElement('button');
+      sendBtn.className = 'btn btn-info btn-sm';
+      sendBtn.textContent = u.email_sent_at ? '重寄' : '寄送';
+      sendBtn.title = u.email_sent_at ? ('上次寄送：' + sentText) : '寄授權碼至信箱';
+      sendBtn.onclick = () => sendLicenseEmail(u.id);
+      tdSend.appendChild(sendBtn);
+    } else {
+      tdSend.textContent = '—';
+    }
+
+    // 操作
     const tdOps = document.createElement('td');
 
     const editBtn = document.createElement('button');
@@ -750,15 +763,6 @@ function renderTable() {
     toggleBtn.onclick = () => toggleUser(u.id, !u.is_active);
     tdOps.appendChild(toggleBtn);
 
-    if (u.email && u.key_code) {
-      const sendBtn = document.createElement('button');
-      sendBtn.className = 'btn btn-info btn-sm';
-      sendBtn.style.marginLeft = '4px';
-      sendBtn.textContent = u.email_sent_at ? '重寄' : '寄送';
-      sendBtn.onclick = () => sendLicenseEmail(u.id);
-      tdOps.appendChild(sendBtn);
-    }
-
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn btn-danger btn-sm';
     deleteBtn.style.marginLeft = '4px';
@@ -766,7 +770,7 @@ function renderTable() {
     deleteBtn.onclick = () => deleteUser(u.id);
     tdOps.appendChild(deleteBtn);
 
-    tr.append(tdRegion, tdUnit, tdName, tdPhone, tdExamDate, tdReferrer, tdReferrerUnit, tdKey, tdExp, tdBadge, tdOps);
+    tr.append(tdRegion, tdUnit, tdName, tdEmployeeId, tdEmail, tdBatch, tdKey, tdExp, tdBadge, tdSend, tdOps);
     return tr;
   });
 
@@ -782,24 +786,19 @@ async function toggleUser(id, active) {
 async function deleteUser(id) {
   const u = allStudents.find(x => x.id === id);
   if (!u) return;
-  if (!confirm('確定要刪除學員「' + u.name + '」嗎？此動作無法復原。\n注意：若該學員裝置上已登入，其存取權限不會立即失效，仍可能使用至效期屆滿。')) return;
+  if (!confirm(`確定要刪除學員「${u.name}」嗎？此操作無法復原。`)) return;
 
   if (u.key_id) {
     await sb.from('key_sessions').delete().eq('key_id', u.key_id);
-  }
-  const { error } = await sb.from('students').delete().eq('id', id);
-  if (error) { alert('刪除失敗：' + error.message); return; }
-
-  // Only the deleted student's own key: if no other student references it, remove it too.
-  if (u.key_id) {
-    const { data: others } = await sb.from('students').select('id').eq('key_id', u.key_id).limit(1);
-    if (!others || others.length === 0) {
+    const { count } = await sb.from('students').select('id', { count: 'exact', head: true }).eq('key_id', u.key_id).neq('id', id);
+    if (!count) {
       await sb.from('license_keys').delete().eq('id', u.key_id);
     }
   }
 
+  const { error } = await sb.from('students').delete().eq('id', id);
+  if (error) { alert('刪除失敗：' + error.message); return; }
   loadUsers();
-  loadKeys();
 }
 
 async function sendLicenseEmail(studentId) {
@@ -808,7 +807,7 @@ async function sendLicenseEmail(studentId) {
   if (!s.email)     { alert('此學員未設定信箱'); return; }
   if (!s.key_code)  { alert('此學員尚未分配授權碼，請先編輯學員並指定授權碼'); return; }
 
-  const subject = encodeURIComponent('【新光人壽】業務員資格測驗學習APP — 授權碼通知');
+  const subject = encodeURIComponent('【新光人壽】投資型保險資格測驗學習APP — 授權碼通知');
   const expStr  = s.expires_at?.substring(0,10) || '請洽管理員';
   const batchStr = s.batch_name || '一般學員';
   const body = encodeURIComponent(
@@ -838,9 +837,7 @@ async function sendLicenseEmail(studentId) {
 async function openAddUserModal() {
   document.getElementById('user-modal-title').textContent = '新增學員';
   document.getElementById('edit-user-id').value = '';
-  ['f-region','f-unit','f-name','f-email','f-phone','f-batch-name','f-notes',
-   'f-exam-date','f-referrer-unit','f-referrer','f-referrer-phone','f-referrer-id']
-    .forEach(id => document.getElementById(id).value = '');
+  ['f-region','f-unit','f-name','f-employee-id','f-email','f-batch-name','f-notes'].forEach(id => document.getElementById(id).value = '');
   const d = new Date(); d.setMonth(d.getMonth() + 6);
   document.getElementById('f-expires-at').value = d.toISOString().substring(0,10);
   document.getElementById('user-modal-error').textContent = '';
@@ -856,16 +853,11 @@ async function openEditUserModal(id) {
   document.getElementById('f-region').value        = u.region || '';
   document.getElementById('f-unit').value          = u.unit_name || '';
   document.getElementById('f-name').value          = u.name || '';
+  document.getElementById('f-employee-id').value   = u.employee_id || '';
   document.getElementById('f-email').value         = u.email || '';
-  document.getElementById('f-phone').value         = u.phone || '';
   document.getElementById('f-batch-name').value    = u.batch_name || '';
   document.getElementById('f-expires-at').value    = u.expires_at?.substring(0,10) || '';
   document.getElementById('f-notes').value         = u.notes || '';
-  document.getElementById('f-exam-date').value      = u.exam_date || '';
-  document.getElementById('f-referrer-unit').value  = u.referrer_unit || '';
-  document.getElementById('f-referrer').value       = u.referrer || '';
-  document.getElementById('f-referrer-phone').value = u.referrer_phone || '';
-  document.getElementById('f-referrer-id').value    = u.referrer_id || '';
   document.getElementById('user-modal-error').textContent = '';
   await populateKeyDropdown(u.key_id);
   document.getElementById('user-modal').classList.add('open');
@@ -876,16 +868,11 @@ async function saveUser() {
   const region  = document.getElementById('f-region').value.trim();
   const unit    = document.getElementById('f-unit').value.trim();
   const name    = document.getElementById('f-name').value.trim();
+  const employeeId = document.getElementById('f-employee-id').value.trim();
   const email   = document.getElementById('f-email').value.trim();
-  const phone   = document.getElementById('f-phone').value.trim();
   const batch   = document.getElementById('f-batch-name').value.trim();
   const expires = document.getElementById('f-expires-at').value;
   const notes   = document.getElementById('f-notes').value.trim();
-  const examDate      = document.getElementById('f-exam-date').value;
-  const referrerUnit  = document.getElementById('f-referrer-unit').value.trim();
-  const referrer      = document.getElementById('f-referrer').value.trim();
-  const referrerPhone = document.getElementById('f-referrer-phone').value.trim();
-  const referrerId    = document.getElementById('f-referrer-id').value.trim();
   const keySelId = document.getElementById('f-key-select').value;
   const errEl   = document.getElementById('user-modal-error');
 
@@ -925,14 +912,9 @@ async function saveUser() {
     region: region || null,
     unit_name: unit || null,
     name,
+    employee_id: employeeId || null,
     email: email || null,
-    phone: phone || null,
     batch_name: batch || null,
-    exam_date: examDate || null,
-    referrer: referrer || null,
-    referrer_phone: referrerPhone || null,
-    referrer_unit: referrerUnit || null,
-    referrer_id: referrerId || null,
     key_id: keyId,
     key_code: keyCode,
     expires_at: expiresAt || null,
@@ -958,8 +940,8 @@ async function saveUser() {
 async function loadKeys() {
   const tbody = document.getElementById('keys-tbody');
   tbody.innerHTML = '<tr class="empty-row"><td colspan="7">載入中…</td></tr>';
-  const { data, error } = await sb.from('license_keys').select('*').order('created_at', { ascending: false });
-  if (error) { tbody.innerHTML = `<tr class="empty-row"><td colspan="7" style="color:var(--danger)">載入失敗：${error.message}</td></tr>`; return; }
+  const { data, error } = await sb.from('license_keys').select('*').order('expires_at', { ascending: false });
+  if (error) { tbody.innerHTML = `<tr class="empty-row"><td colspan="7" style="color:var(--danger)">載入失敗：${esc(error.message)}</td></tr>`; return; }
   allKeys = data || [];
   updateKeyStats(); renderKeysTable();
 }
@@ -1101,13 +1083,10 @@ async function deleteKey(id) {
   const k = allKeys.find(x => x.id === id);
   if (!k) return;
 
-  const { data: linked } = await sb.from('students').select('id').eq('key_id', id).limit(1);
-  if (linked && linked.length > 0) {
-    alert('此授權碼仍有學員使用中，請先刪除或改派該學員後再刪除授權碼。');
-    return;
-  }
+  const { count } = await sb.from('students').select('id', { count: 'exact', head: true }).eq('key_id', id);
+  if (count) { alert('此授權碼仍被學員使用中，請先刪除或改派對應學員後再刪除。'); return; }
 
-  if (!confirm('確定要刪除授權碼「' + k.key_code + '」嗎？此動作無法復原。')) return;
+  if (!confirm(`確定要刪除授權碼「${k.key_code}」嗎？此操作無法復原。`)) return;
 
   await sb.from('key_sessions').delete().eq('key_id', id);
   const { error } = await sb.from('license_keys').delete().eq('id', id);
@@ -1193,7 +1172,7 @@ async function doBatchGenerate() {
   fillEl.style.width = '100%';
   document.getElementById('b-result').style.display = 'block';
   document.getElementById('b-result-title').textContent = `${batch} 授權碼 × ${inserted}`;
-  document.getElementById('b-result-keys').innerHTML = batchGenKeys.map(c => `<div>${c}</div>`).join('');
+  document.getElementById('b-result-keys').innerHTML = batchGenKeys.map(c => `<div>${esc(c)}</div>`).join('');
   document.getElementById('batch-cancel-btn').textContent = '關閉';
   document.getElementById('batch-gen-btn').disabled = true;
   loadKeys();
@@ -1240,7 +1219,7 @@ async function showUsage(keyId, keyCode) {
     sessions.forEach(s => {
       const lastAt = s.last_used_at ? new Date(s.last_used_at).toLocaleString('zh-TW', { hour12: false }) : '—';
       html += `<tr>
-        <td style="padding:8px;border-top:1px solid var(--border);font-family:monospace;font-size:11px;color:var(--muted)">${s.device_id?.substring(0,16)}…</td>
+        <td style="padding:8px;border-top:1px solid var(--border);font-family:monospace;font-size:11px;color:var(--muted)">${esc(s.device_id?.substring(0,16))}…</td>
         <td style="padding:8px;border-top:1px solid var(--border);text-align:right">${s.login_count}</td>
         <td style="padding:8px;border-top:1px solid var(--border);text-align:right;font-size:11px;color:var(--muted)">${lastAt}</td>
       </tr>`;
