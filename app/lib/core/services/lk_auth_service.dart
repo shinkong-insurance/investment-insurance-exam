@@ -26,12 +26,16 @@ class LkLoginResponse {
 }
 
 // ── SharedPreferences 儲存 key ─────────────────
-const _kLkKeyId      = 'lk_key_id';
-const _kLkKeyCode    = 'lk_key_code';
-const _kLkBatchName  = 'lk_batch_name';
-const _kLkExpiresAt  = 'lk_expires_at';
-const _kLkDeviceId   = 'lk_device_id';
-const _kLkLoggedIn   = 'lk_logged_in';
+// 'inv_' 前綴：本站與 insurance-exam-app（無前綴）、currency-insurance-exam
+// （'fx_' 前綴）、property-insurance-exam 共用同一個 GitHub Pages 網域
+// shinkong-insurance.github.io（只是 path 不同），localStorage 以 origin
+// 為界、不分 path，沒有前綴會跟其他站台的登入 session 互相污染。
+const _kLkKeyId      = 'inv_lk_key_id';
+const _kLkKeyCode    = 'inv_lk_key_code';
+const _kLkBatchName  = 'inv_lk_batch_name';
+const _kLkExpiresAt  = 'inv_lk_expires_at';
+const _kLkDeviceId   = 'inv_lk_device_id';
+const _kLkLoggedIn   = 'inv_lk_logged_in';
 
 class LkAuthService {
   static final _sb = Supabase.instance.client;

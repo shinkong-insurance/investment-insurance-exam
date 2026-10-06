@@ -29,10 +29,10 @@ void main() async {
       await _pullCloudDataToLocal(store);
     } else {
       // ── 非 LK 模式：每次開啟清除學習資料 ──
-      await prefs.remove('wrong_book');
-      await prefs.remove('favorites');
-      await prefs.remove('study_progress');
-      await prefs.remove('exam_records');
+      await prefs.remove('inv_wrong_book');
+      await prefs.remove('inv_favorites');
+      await prefs.remove('inv_study_progress');
+      await prefs.remove('inv_exam_records');
     }
   }
 
@@ -52,7 +52,7 @@ Future<void> _pullCloudDataToLocal(SharedPreferencesStore store) async {
           .toSet();
       final merged = {...localFavs, ...cloudFavInts}.toList();
       final p = await store.prefs;
-      await p.setString('favorites', json.encode(merged));
+      await p.setString('inv_favorites', json.encode(merged));
     }
 
     // ── 錯題 ──────────────────────────────────
@@ -72,7 +72,7 @@ Future<void> _pullCloudDataToLocal(SharedPreferencesStore store) async {
         }
       }
       final p = await store.prefs;
-      await p.setString('wrong_book', json.encode(localWrong));
+      await p.setString('inv_wrong_book', json.encode(localWrong));
     }
   } catch (_) {
     // 拉取失敗不影響 App 啟動

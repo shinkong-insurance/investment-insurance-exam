@@ -32,10 +32,10 @@ enum WebLoginResult { success, notFound, expired, inactive, networkError }
 // 服務
 // ──────────────────────────────────────────────
 class WebAuthService {
-  static const _kNationalId = 'web_national_id';
-  static const _kName       = 'web_name';
-  static const _kBatchName  = 'web_batch_name';
-  static const _kExpiresAt  = 'web_expires_at';
+  static const _kNationalId = 'inv_web_national_id';
+  static const _kName       = 'inv_web_name';
+  static const _kBatchName  = 'inv_web_batch_name';
+  static const _kExpiresAt  = 'inv_web_expires_at';
 
   static final _db = Supabase.instance.client;
 

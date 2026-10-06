@@ -43,7 +43,7 @@ class SharedPreferencesStore {
   }
 
   // ── Wrong Book ───────────────────────────────────────────────
-  static const _kWrongBook = 'wrong_book';
+  static const _kWrongBook = 'inv_wrong_book';
 
   Future<Map<String, dynamic>> getWrongBook() => _getMap(_kWrongBook);
 
@@ -74,7 +74,7 @@ class SharedPreferencesStore {
   }
 
   // ── Favorites ────────────────────────────────────────────────
-  static const _kFavorites = 'favorites';
+  static const _kFavorites = 'inv_favorites';
 
   Future<List<int>> getFavoriteIds() async {
     final list = await _getList(_kFavorites);
@@ -97,7 +97,7 @@ class SharedPreferencesStore {
   }
 
   // ── Study Progress ───────────────────────────────────────────
-  static const _kProgress = 'study_progress';
+  static const _kProgress = 'inv_study_progress';
 
   Future<Map<String, dynamic>> _getRawProgress() => _getMap(_kProgress);
 
@@ -128,7 +128,7 @@ class SharedPreferencesStore {
   }
 
   // ── Exam Records ─────────────────────────────────────────────
-  static const _kExamRecords = 'exam_records';
+  static const _kExamRecords = 'inv_exam_records';
 
   Future<List<Map<String, dynamic>>> getExamRecordsRaw() async {
     final list = await _getList(_kExamRecords);
