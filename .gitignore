@@ -49,3 +49,8 @@ app.*.map.json
 UMU_題庫*.xlsx
 第一科*.xlsx
 第二科*.xlsx
+
+# Python / scripts build artifacts
+__pycache__/
+.pytest_cache/
+/scripts/out/
