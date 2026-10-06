@@ -1,7 +1,9 @@
-# 獨立執行腳本（非測試）：解析 10 章 UMU xlsx → scripts/out/questions_chapters.json（中繼產物）
+# 獨立執行腳本（非測試）：解析 10 章 UMU xlsx → scripts/out/questions_chapters.json（中繼產物），
+# 再合併兩科模考題 → app/assets/json/questions.json（最終題庫）
 import json
 import os
 
+from build_mock_exam_questions import load_subject_questions
 from parse_chapter_questions import parse_chapter_file
 
 CHAPTERS = [
@@ -19,6 +21,7 @@ CHAPTERS = [
 REPO = "/Users/fortune/investment-insurance-exam"
 SRC_DIR = os.path.join(REPO, "source-materials")
 OUT_PATH = os.path.join(REPO, "scripts", "out", "questions_chapters.json")
+FINAL_PATH = os.path.join(REPO, "app", "assets", "json", "questions.json")
 
 
 def main():
@@ -34,6 +37,23 @@ def main():
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(all_questions, f, ensure_ascii=False, indent=2)
     print("total:", len(all_questions))
+
+    mock1 = load_subject_questions(
+        umu_path=os.path.join(SRC_DIR, "UMU_題庫(投資型考古題第一科測驗).xlsx"),
+        template_path=os.path.join(SRC_DIR, "第一科(考古題11501).xlsx"),
+        chapter_id=201, start_id=201000)
+    mock2 = load_subject_questions(
+        umu_path=os.path.join(SRC_DIR, "UMU_題庫(投資型考古題第二科測驗).xlsx"),
+        template_path=os.path.join(SRC_DIR, "第二科(考古題11501).xlsx"),
+        chapter_id=202, start_id=202000)
+    print("第一科模考:", len(mock1), "　第二科模考:", len(mock2))
+
+    final_questions = all_questions + mock1 + mock2
+    final_ids = [q["id"] for q in final_questions]
+    assert len(final_ids) == len(set(final_ids)), "duplicate question ids in final merged list"
+    with open(FINAL_PATH, "w", encoding="utf-8") as f:
+        json.dump(final_questions, f, ensure_ascii=False, indent=2)
+    print("final total:", len(final_questions))
 
 
 if __name__ == "__main__":

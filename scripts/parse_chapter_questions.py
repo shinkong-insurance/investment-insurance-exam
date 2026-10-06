@@ -53,29 +53,39 @@ def _clean_explanation(s: str) -> str:
     return s
 
 
+def is_question_row(row: list[str]) -> bool:
+    """真正的題目列：問題描述（A欄）與題型（B欄）皆非空。"""
+    return len(row) > 1 and bool(row[0].strip()) and bool(row[1].strip())
+
+
+def row_to_question(row: list[str], chapter_id: int, question_no: int, qid: int, source: str = '') -> dict:
+    """xlsx 一列 → Question dict（欄位：0 題幹、2 正解字母、5 說明、6-9 選項 A-D）。"""
+    question_text = row[0].strip()
+    answer_letter = row[2].strip().upper()
+    options = [row[6].strip(), row[7].strip(), row[8].strip(), row[9].strip()]
+    options = [o for o in options if o]  # 去掉空白選項
+    if answer_letter not in ANSWER_LETTER_TO_INDEX or ANSWER_LETTER_TO_INDEX[answer_letter] > len(options):
+        raise ValueError(f"{source}: 第 {question_no} 題正解 '{answer_letter}' 對應不到選項，需人工複核: {question_text[:30]}")
+    return {
+        'id': qid,
+        'chapterId': chapter_id,
+        'questionNo': question_no,
+        'question': question_text,
+        'options': options,
+        'answer': ANSWER_LETTER_TO_INDEX[answer_letter],
+        'explanation': _clean_explanation(row[5]),
+    }
+
+
 def parse_chapter_file(path: str, chapter_id: int, start_question_no: int, start_id: int) -> list[dict]:
     rows = read_xlsx_rows(path)
     out = []
     qno = start_question_no
     qid = start_id
     for row in rows[2:]:  # 第0列標題、第1列欄名，從第2列起是題目
-        if len(row) < 2 or not row[1]:
+        if not is_question_row(row):
             continue  # 題型欄空白＝沒有題目（例如尾端空白列）
-        question_text = row[0].strip()
-        answer_letter = row[2].strip().upper()
-        options = [row[6].strip(), row[7].strip(), row[8].strip(), row[9].strip()]
-        options = [o for o in options if o]  # 去掉空白選項
-        if answer_letter not in ANSWER_LETTER_TO_INDEX or ANSWER_LETTER_TO_INDEX[answer_letter] > len(options):
-            raise ValueError(f"{path}: 第 {qno} 題正解 '{answer_letter}' 對應不到選項，需人工複核: {question_text[:30]}")
-        out.append({
-            'id': qid,
-            'chapterId': chapter_id,
-            'questionNo': qno,
-            'question': question_text,
-            'options': options,
-            'answer': ANSWER_LETTER_TO_INDEX[answer_letter],
-            'explanation': _clean_explanation(row[5]),
-        })
+        out.append(row_to_question(row, chapter_id, qno, qid, source=path))
         qno += 1
         qid += 1
     return out
