@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/services/cloud_sync_service.dart';
 import '../../core/services/lk_auth_service.dart';
 import '../../core/services/study_logger.dart';
 
@@ -80,6 +81,9 @@ class _LkGatePageState extends State<LkGatePage> {
 
     if (res.result == LkLoginResult.success) {
       StudyLogger.login(res.keyCode ?? '');
+      // 讓本次頁面 session 立即進入 LK 模式，錯題／收藏才會同步到雲端
+      await CloudSyncService.init();
+      if (!mounted) return;
       context.go('/');
     } else {
       setState(() => _errorMsg = res.error ?? '註冊失敗，請稍後再試');
@@ -107,6 +111,8 @@ class _LkGatePageState extends State<LkGatePage> {
     switch (res.result) {
       case LkLoginResult.success:
         StudyLogger.login(res.keyCode ?? code);
+        await CloudSyncService.init();
+        if (!mounted) return;
         context.go('/');
       case LkLoginResult.notFound:
         setState(() => _errorMsg = '找不到此授權碼，請確認後重試');

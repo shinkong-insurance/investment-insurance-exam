@@ -2,6 +2,7 @@
 // 全 APP 共享的授權狀態（基於 授權碼 LkAuthService session）
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../core/services/cloud_sync_service.dart';
 import '../core/services/lk_auth_service.dart';
 
 // ──────────────────────────────────────────────
@@ -93,6 +94,7 @@ class ExamAuthNotifier extends AsyncNotifier<ExamAuthState> {
   /// 登出
   Future<void> signOut() async {
     await LkAuthService.logout();
+    CloudSyncService.reset();
     state = const AsyncValue.data(
       ExamAuthState(isLoggedIn: false, isLoading: false),
     );

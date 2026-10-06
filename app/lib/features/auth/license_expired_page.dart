@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../core/services/cloud_sync_service.dart';
 import '../../core/services/lk_auth_service.dart';
 
 class LicenseExpiredPage extends StatelessWidget {
@@ -49,6 +50,7 @@ class LicenseExpiredPage extends StatelessWidget {
                 OutlinedButton.icon(
                   onPressed: () async {
                     await LkAuthService.logout();
+                    CloudSyncService.reset();
                     if (context.mounted) context.go('/lk');
                   },
                   icon: const Icon(Icons.logout, color: Colors.white54),
