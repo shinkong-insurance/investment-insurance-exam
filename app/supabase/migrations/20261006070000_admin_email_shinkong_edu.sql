@@ -1,4 +1,4 @@
--- app/supabase/migrations/0002_admin_email_shinkong_edu.sql
+-- app/supabase/migrations/20261006070000_admin_email_shinkong_edu.sql (originally 0002)
 -- 使用者決策（2026-10-06）：管理員 Auth 帳號改為 admin@shinkong.edu.tw，
 -- 取代 0001 寫死的 admin@skl.com.tw。
 -- 本檔重建 0001 的兩條管理員 policy（指令/角色/結構與 0001 相同，只換 email）。
