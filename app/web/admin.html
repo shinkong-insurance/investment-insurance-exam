@@ -454,12 +454,13 @@ function showDashboard(email) {
 
 // Shared: load available (unassigned) license keys for dropdown
 async function loadAvailableKeys(currentKeyId) {
-  const assignedRes = await sb.from('students').select('key_id').not('key_id', 'is', null);
+  const assignedRes = await fetchAll(() => sb.from('students').select('key_id').not('key_id', 'is', null).order('id'));
   const assignedIds = new Set((assignedRes.data || []).map(r => r.key_id).filter(id => id !== currentKeyId));
-  const { data: keys } = await sb.from('license_keys')
+  const { data: keys } = await fetchAll(() => sb.from('license_keys')
     .select('id, key_code, batch_name, expires_at')
     .eq('is_active', true)
-    .order('batch_name');
+    .order('batch_name')
+    .order('id'));
   return (keys || []).filter(k => !assignedIds.has(k.id));
 }
 
@@ -509,7 +510,7 @@ async function loadUsers() {
   emptyRow.appendChild(emptyCell);
   tbody.replaceChildren(emptyRow);
 
-  const { data, error } = await sb.from('students').select('*').order('created_at', { ascending: false });
+  const { data, error } = await fetchAll(() => sb.from('students').select('*').order('created_at', { ascending: false }).order('id'));
   if (error) {
     const errRow = document.createElement('tr');
     errRow.className = 'empty-row';
@@ -955,7 +956,7 @@ async function saveUser() {
 async function loadKeys() {
   const tbody = document.getElementById('keys-tbody');
   tbody.innerHTML = '<tr class="empty-row"><td colspan="7">載入中…</td></tr>';
-  const { data, error } = await sb.from('license_keys').select('*').order('expires_at', { ascending: false });
+  const { data, error } = await fetchAll(() => sb.from('license_keys').select('*').order('expires_at', { ascending: false }).order('id'));
   if (error) { tbody.innerHTML = `<tr class="empty-row"><td colspan="7" style="color:var(--danger)">載入失敗：${esc(error.message)}</td></tr>`; return; }
   allKeys = data || [];
   updateKeyStats(); renderKeysTable();
