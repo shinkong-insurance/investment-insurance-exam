@@ -181,7 +181,7 @@
         <div style="overflow-x:auto">
           <table id="mock-exam-stats-table">
             <thead>
-              <tr><th>單位</th><th>科目</th><th>作答次數</th><th>平均正確率</th><th>及格率（&ge;60%）</th></tr>
+              <tr><th>單位</th><th>科目</th><th>作答次數</th><th>平均正確率</th><th>及格率（&ge;70%）</th></tr>
             </thead>
             <tbody id="mock-exam-stats-body"></tbody>
           </table>
@@ -574,8 +574,8 @@ function renderUnitBreakdown() {
 // ══════════════════════════════════════════════
 // Mock exam stats (科目模考統計: study_logs chapter 201 = 第一科, 202 = 第二科)
 // ══════════════════════════════════════════════
-// 及格標準先假設 60%，如實際及格標準不同請調整這個常數
-const MOCK_EXAM_PASS_RATE = 0.6;
+// 及格標準 70%，與 exam_result_page 的「及格分數 70分」一致（正式及格標準待使用者確認）
+const MOCK_EXAM_PASS_RATE = 0.7;
 
 // Page through a PostgREST query (default cap is 1000 rows per request).
 // makeQuery must return a fresh query builder each call (with a stable order if possible).

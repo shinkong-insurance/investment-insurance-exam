@@ -96,19 +96,20 @@ class _Body extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.white24,
-                          borderRadius: BorderRadius.circular(20),
+                      if ((chapter?.weight ?? '').isNotEmpty)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: Colors.white24,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            '考試比重 ${chapter?.weight}',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 12),
+                          ),
                         ),
-                        child: Text(
-                          '考試比重 ${chapter?.weight ?? ""}',
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 12),
-                        ),
-                      ),
                     ],
                   ),
                 ),

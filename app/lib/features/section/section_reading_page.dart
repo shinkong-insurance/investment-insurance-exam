@@ -628,7 +628,7 @@ class _SectionReadingPageState extends ConsumerState<SectionReadingPage> {
                 ],
               ),
               Text(
-                '預覽：人身保險是保障生活品質的基石。',
+                '預覽：投資型保險結合保險保障與投資理財。',
                 style: TextStyle(fontSize: _fontSize),
               ),
             ],

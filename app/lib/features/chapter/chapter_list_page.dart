@@ -39,14 +39,14 @@ class ChapterListPage extends ConsumerWidget {
           return ListView(
             children: [
               _UnitHeader(
-                title: '第一單元：保險實務',
+                title: '第一科：投資型保險商品概要、金融體系概述',
                 color: const Color(0xFF1565C0),
               ),
               ..._buildChapterTiles(
                   context, unit1, allQs, allSecs, progress,
                   const Color(0xFF1565C0)),
               _UnitHeader(
-                title: '第二單元：保險法規',
+                title: '第二科：投資學、投資管理及財務分析',
                 color: const Color(0xFF2E7D32),
               ),
               ..._buildChapterTiles(
@@ -131,12 +131,14 @@ class ChapterListPage extends ConsumerWidget {
                                 label: '$qCount 題',
                                 color: Colors.orange,
                               ),
-                              const SizedBox(width: 6),
-                              _Chip(
-                                icon: Icons.bar_chart,
-                                label: chapter.weight,
-                                color: Colors.grey,
-                              ),
+                              if (chapter.weight.isNotEmpty) ...[
+                                const SizedBox(width: 6),
+                                _Chip(
+                                  icon: Icons.bar_chart,
+                                  label: chapter.weight,
+                                  color: Colors.grey,
+                                ),
+                              ],
                             ],
                           ),
                         ],

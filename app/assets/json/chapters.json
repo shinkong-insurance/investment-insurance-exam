@@ -3,10 +3,10 @@
   {"id": 102, "courseId": 1, "unitNo": 1, "title": "投資型保險法令介紹", "weight": ""},
   {"id": 103, "courseId": 1, "unitNo": 1, "title": "金融體系概述", "weight": ""},
   {"id": 104, "courseId": 1, "unitNo": 1, "title": "證券投資信託及顧問之規範與制度", "weight": ""},
-  {"id": 105, "courseId": 1, "unitNo": 1, "title": "貨幣時間價值", "weight": ""},
-  {"id": 106, "courseId": 1, "unitNo": 1, "title": "債券評價", "weight": ""},
-  {"id": 107, "courseId": 1, "unitNo": 1, "title": "證券評價", "weight": ""},
-  {"id": 108, "courseId": 1, "unitNo": 1, "title": "風險、報酬與投資組合", "weight": ""},
-  {"id": 109, "courseId": 1, "unitNo": 1, "title": "資本資產訂價模式、績效評估及調整", "weight": ""},
-  {"id": 110, "courseId": 1, "unitNo": 1, "title": "投資工具簡介", "weight": ""}
+  {"id": 105, "courseId": 1, "unitNo": 2, "title": "貨幣時間價值", "weight": ""},
+  {"id": 106, "courseId": 1, "unitNo": 2, "title": "債券評價", "weight": ""},
+  {"id": 107, "courseId": 1, "unitNo": 2, "title": "證券評價", "weight": ""},
+  {"id": 108, "courseId": 1, "unitNo": 2, "title": "風險、報酬與投資組合", "weight": ""},
+  {"id": 109, "courseId": 1, "unitNo": 2, "title": "資本資產訂價模式、績效評估及調整", "weight": ""},
+  {"id": 110, "courseId": 1, "unitNo": 2, "title": "投資工具簡介", "weight": ""}
 ]
