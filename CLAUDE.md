@@ -22,11 +22,11 @@ curl 驗證通過。keep-alive 排程已設好 repo variables 並手動跑過一
   `build_sections_json.py`；講義草稿 `scripts/sections_draft/`）
 - 題目 id = `chapterId*1000 + 題號`（計畫原本的 `*100` 會撞號）；section id = `chapterId*100 + order`
 - Supabase migration `app/supabase/migrations/0001_init_schema.sql`：RLS 比照外幣站現行（0008/0009）
-  ——`students` 只限管理員 `admin@skl.com.tw`、`license_keys` 全員可讀/管理員可寫、其他 4 表開放、
+  ——`students` 只限管理員 `admin@shinkong.edu.tw`（0002 migration 取代 0001 的 admin@skl.com.tw）、`license_keys` 全員可讀/管理員可寫、其他 4 表開放、
   `increment_key_used_count` 為 security definer
 
 **下一步**：
-1. 使用者在 Supabase Dashboard 建管理員 Auth 帳號 **`admin@skl.com.tw`**（RLS 寫死這個 email；建立時勾 Auto Confirm）
+1. 使用者在 Supabase Dashboard 建管理員 Auth 帳號 **`admin@shinkong.edu.tw`**（RLS 寫死這個 email；建立時勾 Auto Confirm）
 2. **Task 14** 上線 QA：`#/lk` 註冊 → 章節閱讀/練習 → 兩科模考 → admin.html 學員列表與模考統計 → 清測試資料
 
 **待使用者確認**：及格標準（目前學員頁與後台都用 70%）、科目模考計時（每題 72 秒）、
