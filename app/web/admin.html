@@ -449,7 +449,7 @@ function showDashboard(email) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   document.getElementById('admin-label').textContent = email;
-  loadUsers(); loadKeys(); loadMockExamStats();
+  loadUsers(); loadKeys();
 }
 
 // Shared: load available (unassigned) license keys for dropdown
@@ -577,13 +577,28 @@ function renderUnitBreakdown() {
 // 及格標準先假設 60%，如實際及格標準不同請調整這個常數
 const MOCK_EXAM_PASS_RATE = 0.6;
 
+// Page through a PostgREST query (default cap is 1000 rows per request).
+// makeQuery must return a fresh query builder each call (with a stable order if possible).
+async function fetchAll(makeQuery) {
+  const PAGE = 1000;
+  const all = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await makeQuery().range(from, from + PAGE - 1);
+    if (error) return { data: null, error };
+    all.push(...(data || []));
+    if (!data || data.length < PAGE) break;
+  }
+  return { data: all, error: null };
+}
+
 async function loadMockExamStats() {
   const tbody = document.getElementById('mock-exam-stats-body');
-  const { data: logs, error } = await sb
+  const { data: logs, error } = await fetchAll(() => sb
     .from('study_logs')
-    .select('license_key, chapter_id, questions_total, questions_correct')
+    .select('id, license_key, chapter_id, questions_total, questions_correct')
     .eq('event_type', 'exam_session')
-    .in('chapter_id', ['201', '202']);
+    .in('chapter_id', ['201', '202'])
+    .order('id'));
   if (error) {
     console.error(error);
     const tr = document.createElement('tr'); tr.className = 'empty-row';
@@ -594,7 +609,7 @@ async function loadMockExamStats() {
   }
 
   // student unit by key_code (students is admin-only via RLS; page is logged in as admin)
-  const { data: students } = await sb.from('students').select('key_code, unit_name');
+  const { data: students } = await fetchAll(() => sb.from('students').select('id, key_code, unit_name').order('id'));
   const unitByKeyCode = Object.fromEntries(
     (students || []).filter(s => s.key_code).map(s => [s.key_code, s.unit_name || '未填寫'])
   );
@@ -1220,8 +1235,8 @@ async function showUsage(keyId, keyCode) {
       const lastAt = s.last_used_at ? new Date(s.last_used_at).toLocaleString('zh-TW', { hour12: false }) : '—';
       html += `<tr>
         <td style="padding:8px;border-top:1px solid var(--border);font-family:monospace;font-size:11px;color:var(--muted)">${esc(s.device_id?.substring(0,16))}…</td>
-        <td style="padding:8px;border-top:1px solid var(--border);text-align:right">${s.login_count}</td>
-        <td style="padding:8px;border-top:1px solid var(--border);text-align:right;font-size:11px;color:var(--muted)">${lastAt}</td>
+        <td style="padding:8px;border-top:1px solid var(--border);text-align:right">${esc(String(s.login_count))}</td>
+        <td style="padding:8px;border-top:1px solid var(--border);text-align:right;font-size:11px;color:var(--muted)">${esc(String(lastAt))}</td>
       </tr>`;
     });
     html += '</table>';
@@ -1242,7 +1257,7 @@ document.querySelectorAll('.modal-overlay').forEach(el => {
 });
 
 function esc(str) {
-  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  return (str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
 function copyText(text) {
