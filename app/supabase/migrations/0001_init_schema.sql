@@ -5,10 +5,11 @@
 -- study_logger.dart 實際查詢用到的表名與欄位名，不是重新設計。
 -- students / license_keys 的後台欄位另外對照 web/admin.html（Task 12）。
 
-create extension if not exists "uuid-ossp";
+-- uuid 主鍵用 PostgreSQL 13+ 內建的 gen_random_uuid()，不依賴 uuid-ossp 擴充
+-- （Supabase 新專案把 uuid-ossp 放在 extensions schema，migration 的 search_path 找不到 uuid_generate_v4()）。
 
 create table license_keys (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   key_code text unique not null,
   batch_name text,
   max_uses int not null default 1,      -- 0 = 無限
@@ -19,7 +20,7 @@ create table license_keys (
 );
 
 create table key_sessions (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   key_id uuid not null references license_keys(id) on delete cascade,
   device_id text not null,
   login_count int not null default 1,
@@ -54,7 +55,7 @@ create table key_wrong_answers (
 );
 
 create table students (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name text not null,
   unit_name text,
   employee_id text,
@@ -77,7 +78,7 @@ create index students_name_unit_emp_idx on students (name, unit_name, employee_i
 
 -- study_logger.dart 的 _insert() 直接把這些欄位當頂層物件送出
 create table study_logs (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   license_key text not null,
   event_type text not null,
   chapter_id text,
