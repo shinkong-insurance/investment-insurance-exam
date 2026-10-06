@@ -43,9 +43,9 @@ class SharedPreferencesStore {
   }
 
   // ── Wrong Book ───────────────────────────────────────────────
-  static const _kWrongBook = 'inv_wrong_book';
+  static const kWrongBook = 'inv_wrong_book';
 
-  Future<Map<String, dynamic>> getWrongBook() => _getMap(_kWrongBook);
+  Future<Map<String, dynamic>> getWrongBook() => _getMap(kWrongBook);
 
   Future<void> addWrong(int questionId) async {
     final data = await getWrongBook();
@@ -60,24 +60,24 @@ class SharedPreferencesStore {
         'last_wrong_time': DateTime.now().toIso8601String(),
       };
     }
-    await _setMap(_kWrongBook, data);
+    await _setMap(kWrongBook, data);
   }
 
   Future<void> removeWrong(int questionId) async {
     final data = await getWrongBook();
     data.remove(questionId.toString());
-    await _setMap(_kWrongBook, data);
+    await _setMap(kWrongBook, data);
   }
 
   Future<void> clearWrongBook() async {
-    await _setMap(_kWrongBook, {});
+    await _setMap(kWrongBook, {});
   }
 
   // ── Favorites ────────────────────────────────────────────────
-  static const _kFavorites = 'inv_favorites';
+  static const kFavorites = 'inv_favorites';
 
   Future<List<int>> getFavoriteIds() async {
-    final list = await _getList(_kFavorites);
+    final list = await _getList(kFavorites);
     return list.map((e) => e as int).toList();
   }
 
@@ -93,13 +93,13 @@ class SharedPreferencesStore {
     } else {
       list.add(questionId);
     }
-    await _setList(_kFavorites, list);
+    await _setList(kFavorites, list);
   }
 
   // ── Study Progress ───────────────────────────────────────────
-  static const _kProgress = 'inv_study_progress';
+  static const kProgress = 'inv_study_progress';
 
-  Future<Map<String, dynamic>> _getRawProgress() => _getMap(_kProgress);
+  Future<Map<String, dynamic>> _getRawProgress() => _getMap(kProgress);
 
   Future<Map<int, Map<String, int>>> getProgress() async {
     final raw = await _getRawProgress();
@@ -124,22 +124,22 @@ class SharedPreferencesStore {
       'correct': correct,
       'updated_time': DateTime.now().toIso8601String(),
     };
-    await _setMap(_kProgress, raw);
+    await _setMap(kProgress, raw);
   }
 
   // ── Exam Records ─────────────────────────────────────────────
-  static const _kExamRecords = 'inv_exam_records';
+  static const kExamRecords = 'inv_exam_records';
 
   Future<List<Map<String, dynamic>>> getExamRecordsRaw() async {
-    final list = await _getList(_kExamRecords);
+    final list = await _getList(kExamRecords);
     return list.cast<Map<String, dynamic>>();
   }
 
   Future<void> saveExamRecord(Map<String, dynamic> record) async {
-    final list = await _getList(_kExamRecords);
+    final list = await _getList(kExamRecords);
     // prepend so newest first; keep max 50
     list.insert(0, record);
     if (list.length > 50) list.removeRange(50, list.length);
-    await _setList(_kExamRecords, list);
+    await _setList(kExamRecords, list);
   }
 }
