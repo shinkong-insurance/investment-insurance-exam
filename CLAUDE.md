@@ -23,13 +23,15 @@
   `increment_key_used_count` 為 security definer
 
 **下一步（都需要使用者）**：
-1. **Task 5**：使用者建立 Supabase 專案 → 把 Project URL / anon key 填進
-   `app/lib/core/services/supabase_config.dart` 與 `app/web/admin.html`（目前是
-   `REPLACE-WITH-NEW-PROJECT` 佔位值）→ `supabase db push`、deploy `auto-register-student` →
-   **管理員 Auth 帳號 email 必須是 `admin@skl.com.tw`**（RLS 寫死這個 email）
-2. **Task 13**：部署。**不要照計畫用 `git subtree split`**（會讓 `docs/`、`scripts/` 從硬碟消失、
-   `source-materials/` 失去 gitignore 保護）；建議維持 `app/` 子目錄結構、deploy.sh 放 repo 根目錄
-   build `app/`。建 public repo 與 push 前先問使用者。
+1. **Task 5**：**使用者決定（2026-10-06）用 Supabase 免費方案**（另開免費組織，不放付費的 Vinnha 組織）。
+   使用者建立專案後 → 把 Project URL / anon key 填進 `app/lib/core/services/supabase_config.dart`
+   與 `app/web/admin.html`（目前是 `REPLACE-WITH-NEW-PROJECT` 佔位值）→ `supabase db push`、deploy
+   `auto-register-student` → **管理員 Auth 帳號 email 必須是 `admin@skl.com.tw`**（RLS 寫死這個 email）
+2. **Task 13**：部署到 GitHub Pages。`deploy.sh`、`.github/workflows/supabase-keepalive.yml`、`DEPLOY.md`
+   已寫好（未執行、未 push）。維持 `app/` 子目錄結構，**不要用計畫裡的 `git subtree split`**；
+   gh-pages 是 orphan 分支只放 build 產物。建 repo 後要設 repo variables `SUPABASE_URL`、
+   `SUPABASE_ANON_KEY`（keep-alive 排程每天查一次 DB 防免費專案被暫停，每月 1 號自動 commit
+   一次防 GitHub 60 天停用排程）。建 public repo 與 push 前先問使用者。
 3. **Task 14**：上線 QA（本機 `flutter run` 也要等 Task 5 填好連線才能登入）
 
 **待使用者確認**：及格標準（目前學員頁與後台都用 70%）、科目模考計時（每題 72 秒）、
