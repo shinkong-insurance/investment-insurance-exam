@@ -3,17 +3,37 @@
 **這份文件假設你對這個 repo 完全沒有記憶，寫了完整現況、所有已經做的決策、和
 下一步要做什麼，不要憑印象或猜測跳過它。**
 
-## 目前狀態（2026-10-05 晚上，交接點）
+## 目前狀態（2026-10-06，交接點）
 
-**還沒開始寫程式。** 目前只完成了 brainstorming（設計規格）與 writing-plans（實作計畫），
-兩份文件都已寫好並 commit 在這個 repo：
+**本機開發已完成，停在需要使用者帳號的步驟。** 分支 `feat/build-site`（從 master `d602b2b`
+分出，尚未合併、尚未 push）。用 subagent-driven 方式執行，每個 Task 都經過 review。
 
 - 設計規格：[`docs/superpowers/specs/2026-10-05-investment-insurance-exam-design.md`](docs/superpowers/specs/2026-10-05-investment-insurance-exam-design.md)
-- 實作計畫：[`docs/superpowers/plans/2026-10-05-investment-insurance-exam.md`](docs/superpowers/plans/2026-10-05-investment-insurance-exam.md)（**14 個 Task，從這裡接續執行**）
+- 實作計畫：[`docs/superpowers/plans/2026-10-05-investment-insurance-exam.md`](docs/superpowers/plans/2026-10-05-investment-insurance-exam.md)
+- 執行 ledger（gitignored，含每一條偏離計畫的裁決）：`.superpowers/sdd/2026-10-05-investment-insurance-exam/progress.md`
 
-**下一步**：從實作計畫的 **Task 1** 開始執行（複製 `insurance-exam-app` 建立新專案骨架）。
-使用者尚未選擇執行方式（subagent-driven 逐任務派發 vs. inline 在對話中批次執行），
-下次接續時先問一次要用哪種。
+**已完成**：Task 1–4、6–12，加上 final whole-branch review 的修正批次。
+- Flutter 專案在 `app/`；題庫 `app/assets/json/questions.json` 共 1276 題（10 章 1000 題 +
+  第一科模考 chapterId 201 共 95 題 + 第二科模考 202 共 181 題）；講義 `sections.json` 46 節
+- 題庫/講義產生腳本與測試在 `scripts/`（`build_questions_json.py`、`validate_questions.py`、
+  `build_sections_json.py`；講義草稿 `scripts/sections_draft/`）
+- 題目 id = `chapterId*1000 + 題號`（計畫原本的 `*100` 會撞號）；section id = `chapterId*100 + order`
+- Supabase migration `app/supabase/migrations/0001_init_schema.sql`：RLS 比照外幣站現行（0008/0009）
+  ——`students` 只限管理員 `admin@skl.com.tw`、`license_keys` 全員可讀/管理員可寫、其他 4 表開放、
+  `increment_key_used_count` 為 security definer
+
+**下一步（都需要使用者）**：
+1. **Task 5**：使用者建立 Supabase 專案 → 把 Project URL / anon key 填進
+   `app/lib/core/services/supabase_config.dart` 與 `app/web/admin.html`（目前是
+   `REPLACE-WITH-NEW-PROJECT` 佔位值）→ `supabase db push`、deploy `auto-register-student` →
+   **管理員 Auth 帳號 email 必須是 `admin@skl.com.tw`**（RLS 寫死這個 email）
+2. **Task 13**：部署。**不要照計畫用 `git subtree split`**（會讓 `docs/`、`scripts/` 從硬碟消失、
+   `source-materials/` 失去 gitignore 保護）；建議維持 `app/` 子目錄結構、deploy.sh 放 repo 根目錄
+   build `app/`。建 public repo 與 push 前先問使用者。
+3. **Task 14**：上線 QA（本機 `flutter run` 也要等 Task 5 填好連線才能登入）
+
+**待使用者確認**：及格標準（目前學員頁與後台都用 70%）、科目模考計時（每題 72 秒）、
+第 1–4 章歸第一科 / 第 5–10 章歸第二科的分組、講義中 3 處無法定案的內容（見 ledger）。
 
 ## 這個專案是什麼
 
@@ -75,7 +95,7 @@
 
 ## 下次接續時怎麼做
 
-1. 讀這份文件 + 實作計畫文件的 Task 1
-2. 問使用者要 subagent-driven 還是 inline 執行
-3. 照計畫逐一完成 Task 1 → Task 14，每個 Task 做完記得 commit（計畫裡每個 Task 都寫了
-   commit 的 step，不要跳過）
+1. 讀這份文件「目前狀態」段落 + ledger（`.superpowers/sdd/.../progress.md`）——**Task 1–4、6–12
+   已完成，不要重做**
+2. 確認在 `feat/build-site` 分支，`git log` 對照 ledger
+3. 等使用者提供 Supabase 專案資訊後接續 Task 5，再 Task 13（先問部署結構與 push）、Task 14
