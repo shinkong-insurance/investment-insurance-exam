@@ -28,10 +28,11 @@ create table key_sessions (
 );
 
 -- lk_auth_service.dart 用 _sb.rpc('increment_key_used_count', params: {'k_id': keyId}) 呼叫
-create or replace function increment_key_used_count(k_id uuid)
-returns void as $$
-  update license_keys set used_count = used_count + 1 where id = k_id;
-$$ language sql;
+-- security definer：license_keys 開 RLS 後 anon 只能 select，沒有 definer 這個 RPC 會被擋（currency 0008）
+create or replace function public.increment_key_used_count(k_id uuid)
+returns void language sql security definer set search_path = public as $$
+  update public.license_keys set used_count = used_count + 1 where id = k_id;
+$$;
 
 create table key_favorites (
   key_id uuid not null references license_keys(id) on delete cascade,
@@ -88,17 +89,38 @@ create table study_logs (
   created_at timestamptz not null default now()
 );
 
--- 這些都是授權／個人作答紀錄表，沿用 insurance-exam-app／currency-insurance-exam
--- 現狀的信任模型：不加 RLS ownership 限制。原因：前端一律用 anon key +
--- 純 .eq('key_id', ...) 過濾，沒有 Supabase Auth session／JWT claim 可供
--- RLS 驗證「這個 key_id 真的屬於呼叫端」，加了只會讓現有程式碼打不通。
--- 這是跟三個既有站台一致的既有風險，不在本案中另外解決。
---
--- 新版 Supabase 專案可能對新建表預設自動開 RLS（currency 0003 踩過），
--- 在沒有任何 policy 下會讓 anon 全部被擋，所以明確關閉（不是新增 policy）。
-alter table license_keys disable row level security;
-alter table key_sessions disable row level security;
-alter table key_favorites disable row level security;
-alter table key_wrong_answers disable row level security;
-alter table students disable row level security;
-alter table study_logs disable row level security;
+-- RLS 模型：鏡像 currency-insurance-exam 目前的終態（其 migrations 0008 + 0009），
+-- 不是較早的 0002/0003「全關 RLS」狀態（那會讓持有公開 anon key 的人能改/刪/清空
+-- 所有授權碼與學員，且觸發 Supabase Security Advisor「RLS Disabled in Public」）。
+--   * 學員端（anon key）對 license_keys 只做 SELECT，對 students 完全不碰。
+--   * auto-register-student Edge Function 用 service_role，會繞過 RLS。
+--   * 後台 web/admin.html 以 Supabase Auth 登入 admin@skl.com.tw，才能讀寫 students/license_keys。
+--     Task 5 必須在 Supabase Dashboard 建立 Email 剛好是 admin@skl.com.tw 的 Auth 使用者。
+--   * key_sessions/key_favorites/key_wrong_answers/study_logs 學員端沒有 Auth session 可供
+--     ownership 驗證，沿用既有信任模型：開 RLS + 全開 policy（client_all），純粹消除 Advisor ERROR。
+alter table students enable row level security;
+create policy students_admin_all on students
+  for all to authenticated
+  using ((auth.jwt() ->> 'email') = 'admin@skl.com.tw')
+  with check ((auth.jwt() ->> 'email') = 'admin@skl.com.tw');
+
+alter table license_keys enable row level security;
+create policy license_keys_read on license_keys
+  for select to anon, authenticated using (true);
+create policy license_keys_admin_write on license_keys
+  for all to authenticated
+  using ((auth.jwt() ->> 'email') = 'admin@skl.com.tw')
+  with check ((auth.jwt() ->> 'email') = 'admin@skl.com.tw');
+
+do $$
+declare t text;
+begin
+  foreach t in array array['key_sessions','key_favorites','key_wrong_answers','study_logs'] loop
+    execute format('alter table public.%I enable row level security', t);
+    execute format('drop policy if exists client_all on public.%I', t);
+    execute format('create policy client_all on public.%I for all to anon, authenticated using (true) with check (true)', t);
+  end loop;
+end $$;
+
+-- TRUNCATE 不受 RLS 限制，PostgREST 也用不到，收回
+revoke truncate on all tables in schema public from anon, authenticated;
