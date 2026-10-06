@@ -3,14 +3,17 @@
 **這份文件假設你對這個 repo 完全沒有記憶，寫了完整現況、所有已經做的決策、和
 下一步要做什麼，不要憑印象或猜測跳過它。**
 
-## 目前狀態（2026-10-06，交接點）
+## 目前狀態（2026-10-06，已上線，待 QA）
 
-**本機開發已完成，停在需要使用者帳號的步驟。** 分支 `feat/build-site`（從 master `d602b2b`
-分出，尚未合併、尚未 push）。用 subagent-driven 方式執行，每個 Task 都經過 review。
+**網站已部署：https://shinkong-insurance.github.io/investment-insurance-exam/**
+（repo：https://github.com/shinkong-insurance/investment-insurance-exam ，`main` 放原始碼、`gh-pages` 放 build）。
+Supabase 免費方案專案 `drvjxlmvfmbpqzflljly`（ap-northeast-2），migration 與 `auto-register-student` 已部署、
+curl 驗證通過。keep-alive 排程已設好 repo variables 並手動跑過一次成功。
 
 - 設計規格：[`docs/superpowers/specs/2026-10-05-investment-insurance-exam-design.md`](docs/superpowers/specs/2026-10-05-investment-insurance-exam-design.md)
 - 實作計畫：[`docs/superpowers/plans/2026-10-05-investment-insurance-exam.md`](docs/superpowers/plans/2026-10-05-investment-insurance-exam.md)
 - 執行 ledger（gitignored，含每一條偏離計畫的裁決）：`.superpowers/sdd/2026-10-05-investment-insurance-exam/progress.md`
+- 重新部署：`./deploy.sh`（見 `DEPLOY.md`）
 
 **已完成**：Task 1–4、6–12，加上 final whole-branch review 的修正批次。
 - Flutter 專案在 `app/`；題庫 `app/assets/json/questions.json` 共 1276 題（10 章 1000 題 +
@@ -22,17 +25,9 @@
   ——`students` 只限管理員 `admin@skl.com.tw`、`license_keys` 全員可讀/管理員可寫、其他 4 表開放、
   `increment_key_used_count` 為 security definer
 
-**下一步（都需要使用者）**：
-1. **Task 5**：**使用者決定（2026-10-06）用 Supabase 免費方案**（另開免費組織，不放付費的 Vinnha 組織）。
-   使用者建立專案後 → 把 Project URL / anon key 填進 `app/lib/core/services/supabase_config.dart`
-   與 `app/web/admin.html`（目前是 `REPLACE-WITH-NEW-PROJECT` 佔位值）→ `supabase db push`、deploy
-   `auto-register-student` → **管理員 Auth 帳號 email 必須是 `admin@skl.com.tw`**（RLS 寫死這個 email）
-2. **Task 13**：部署到 GitHub Pages。`deploy.sh`、`.github/workflows/supabase-keepalive.yml`、`DEPLOY.md`
-   已寫好（未執行、未 push）。維持 `app/` 子目錄結構，**不要用計畫裡的 `git subtree split`**；
-   gh-pages 是 orphan 分支只放 build 產物。建 repo 後要設 repo variables `SUPABASE_URL`、
-   `SUPABASE_ANON_KEY`（keep-alive 排程每天查一次 DB 防免費專案被暫停，每月 1 號自動 commit
-   一次防 GitHub 60 天停用排程）。建 public repo 與 push 前先問使用者。
-3. **Task 14**：上線 QA（本機 `flutter run` 也要等 Task 5 填好連線才能登入）
+**下一步**：
+1. 使用者在 Supabase Dashboard 建管理員 Auth 帳號 **`admin@skl.com.tw`**（RLS 寫死這個 email；建立時勾 Auto Confirm）
+2. **Task 14** 上線 QA：`#/lk` 註冊 → 章節閱讀/練習 → 兩科模考 → admin.html 學員列表與模考統計 → 清測試資料
 
 **待使用者確認**：及格標準（目前學員頁與後台都用 70%）、科目模考計時（每題 72 秒）、
 第 1–4 章歸第一科 / 第 5–10 章歸第二科的分組、講義中 3 處無法定案的內容（見 ledger）。
@@ -100,4 +95,4 @@
 1. 讀這份文件「目前狀態」段落 + ledger（`.superpowers/sdd/.../progress.md`）——**Task 1–4、6–12
    已完成，不要重做**
 2. 確認在 `feat/build-site` 分支，`git log` 對照 ledger
-3. 等使用者提供 Supabase 專案資訊後接續 Task 5，再 Task 13（先問部署結構與 push）、Task 14
+3. Task 1–13 已完成並上線；只剩 Task 14（QA）
