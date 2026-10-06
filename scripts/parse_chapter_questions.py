@@ -45,6 +45,14 @@ def read_xlsx_rows(path: str) -> list[list[str]]:
 ANSWER_LETTER_TO_INDEX = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5}
 
 
+def _clean_explanation(s: str) -> str:
+    """去頭尾空白；若內容只是單一答案字母 A-E（不含資訊）則清空。"""
+    s = (s or '').strip()
+    if len(s) == 1 and s.upper() in ANSWER_LETTER_TO_INDEX:
+        return ''
+    return s
+
+
 def parse_chapter_file(path: str, chapter_id: int, start_question_no: int, start_id: int) -> list[dict]:
     rows = read_xlsx_rows(path)
     out = []
@@ -66,7 +74,7 @@ def parse_chapter_file(path: str, chapter_id: int, start_question_no: int, start
             'question': question_text,
             'options': options,
             'answer': ANSWER_LETTER_TO_INDEX[answer_letter],
-            'explanation': (row[5] or '').strip(),
+            'explanation': _clean_explanation(row[5]),
         })
         qno += 1
         qid += 1

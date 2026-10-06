@@ -25,9 +25,11 @@ def main():
     all_questions = []
     for chapter_id, fname in CHAPTERS:
         qs = parse_chapter_file(os.path.join(SRC_DIR, fname), chapter_id=chapter_id,
-                                start_question_no=1, start_id=chapter_id * 100)
+                                start_question_no=1, start_id=chapter_id * 1000)
         all_questions.extend(qs)
         print(f"chapter {chapter_id}: {len(qs)} 題")
+    ids = [q["id"] for q in all_questions]
+    assert len(ids) == len(set(ids)), "duplicate question ids in output"
     os.makedirs(os.path.dirname(OUT_PATH), exist_ok=True)
     with open(OUT_PATH, "w", encoding="utf-8") as f:
         json.dump(all_questions, f, ensure_ascii=False, indent=2)
