@@ -25,7 +25,7 @@ jobs:
       SUPABASE_URL: ${{ vars.SUPABASE_URL }}
       SUPABASE_ANON_KEY: ${{ vars.SUPABASE_ANON_KEY }}
     steps:
-      - name: Query license_keys through PostgREST
+      - name: Call keepalive() RPC through PostgREST
         run: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
             echo "::error::Repository variables SUPABASE_URL and/or SUPABASE_ANON_KEY are not set"
@@ -34,8 +34,10 @@ jobs:
           curl --fail --silent --show-error --retry 3 --retry-delay 10 --retry-all-errors \
             -H "apikey: ${SUPABASE_ANON_KEY}" \
             -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            -X POST -H "Content-Type: application/json" -d '{}' \
             -o /dev/null -w 'HTTP %{http_code}\n' \
-            "${SUPABASE_URL%/}/rest/v1/license_keys?select=id&limit=1"
+            "${SUPABASE_URL%/}/rest/v1/rpc/keepalive"
+          # 2026-11-25：原本查 license_keys，資安修補後學員端(anon)不能再讀該表，改呼叫 keepalive()
           echo "Supabase ping OK"
 
   repo-activity:
